@@ -26,10 +26,10 @@ const App = () => {
 		 * The options array should contain objects.
 		 * Required keys are "name" and "value" but you can have and use any number of key/value pairs.
 		 */
-		// const options = data.map(item => item.data).flat().map(o => '' + o)
 		if (!data?.length) return
 		try {
-			const opts = _.flattenDeep(data.map(item => item.data)).filter(o => o !== null && typeof o !== 'object').map(o => ({label: '' + o, value: '' + o}))
+			// const opts = _.flattenDeep(data.map(item => item.data)).filter(o => o !== null && typeof o !== 'object').map(o => ({label: '' + o, value: '' + o}))
+			const opts = _.flattenDeep(data.map(item => item.data)).map(item => ({label: item.description, value: item.description})).filter(opt => opt.value != undefined)
 			console.log(' ================= options: ', opts)
 			setOptions(opts)
 		} catch (e) {
@@ -121,7 +121,7 @@ const App = () => {
 		}
 
 		const filtered = dataCopy.map(item => {
-			item.data = item.data.filter(row => row.find(cell => cell == option.value))
+			item.data = item.data.filter(row => row.description == option.value)
 			return item
 		})
 		setFilteredData([...filtered])
@@ -180,6 +180,7 @@ const App = () => {
 				Working {new Date().toLocaleDateString()}
 				<input style={{ marginLeft: 50 }} type="file" multiple onChange={handleChange} />
 				<button onClick={uploadExcelFiles}>Import</button>
+				<span style={{ marginLeft: 30, color: 'pink', fontSize: 24, fontWeight: 'bold'}}>Huế khó ưa !! &#128540; &#128540;</span>
 			</div>
 			<div>
 				{/* {renderDataHeader()} */}
@@ -224,21 +225,31 @@ const App = () => {
 				))} */}
 
 				<div>
-					<Select options={[{label: 'All', value: 'All'}, ...options]} onChange={fuzzySearch} />
+					<Select options={[{label: 'All', value: 'All'}, ...options]} placeholder='Search' onChange={fuzzySearch} />
 				</div>
 
-				{filteredData.map(item => (
+				{filteredData.map((item, index) => (
 					<div>
-						{(item?.data || []).map(row => (
-							<div style={{borderBottom: '1px solid #555', marginBottom: 8}}>
-								{(row || []).map(cell => (
-									<span style={{padding: 8, paddingTop: 24, paddingBottom: 24}}>{'' + cell}</span>
+						{item.data.length ? (
+							<div style={{ marginTop: 32, marginBottom: 16}} key={`file-${index}`}>
+								<span style={{ fontWeight: 'bold', textAlign: 'center'}}>===================== Filename: {item.filename} ===================</span>
+							</div>
+						) : null}
+						{(item?.data || []).map((row, rIndex) => (
+							<div style={{ paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? '#d7e8f7' : 'white'}} key={`row-${rIndex}`}>
+								{Object.keys(row).map((key, cIndex) => (
+									<span style={{padding: 24, paddingTop: 24, paddingBottom: 24}} key={`cell-${cIndex}`}>{'' + typeof row[key] == 'object' ? row[key].result : row[key]}</span>
 								))}
 							</div>
 						))}
 					</div>
 				))}
 			</div>
+
+			{/* <div>
+				<video autoPlay loop muted src='https://www.youtube.com/watch?v=rN6nlNC9WQA'>
+				</video>
+			</div> */}
 		</div>
 	)
 }
