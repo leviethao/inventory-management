@@ -1,52 +1,93 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import ExcelJS from 'exceljs'
 import moment from 'moment'
 import axios from 'axios'
 import TextAreaAutoSize from 'react-textarea-autosize'
 import './styles.css'
+import _ from 'lodash'
+import SelectSearch from 'react-select-search'
+import Select from 'react-select'
 
 const api = axios.create({
-	baseURL: 'http://192.168.0.101:3001',
+	// baseURL: 'http://localhost:3001',
+	baseURL: 'https://a38b-123-21-86-62.ngrok.io'
 })
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
 const App = () => {
-	const [file, setFile] = useState(null)
+	const filesRef = useRef([])
 	const [data, setData] = useState([])
+	const [filteredData, setFilteredData] = useState([])
+	const [options, setOptions] = useState([])
+
+	const createOptions = useCallback(() => {
+		/**
+		 * The options array should contain objects.
+		 * Required keys are "name" and "value" but you can have and use any number of key/value pairs.
+		 */
+		// const options = data.map(item => item.data).flat().map(o => '' + o)
+		if (!data?.length) return
+		try {
+			const opts = _.flattenDeep(data.map(item => item.data)).filter(o => o !== null && typeof o !== 'object').map(o => ({label: '' + o, value: '' + o}))
+			console.log(' ================= options: ', opts)
+			setOptions(opts)
+		} catch (e) {
+			console.log('=== Exception: ', e)
+		}
+	}, [data])
+
+	useEffect(() => {
+		createOptions()
+	}, [data, createOptions])
 
 	const handleChange = (e) => {
-		setFile(e.target.files[0])
+		filesRef.current = e.target.files
 	}
 
-	const handleImport = () => {
-		const wb = new ExcelJS.Workbook()
-		const reader = new FileReader()
-
-		reader.readAsArrayBuffer(file)
-		reader.onload = () => {
-			const buffer = reader.result
-			wb.xlsx.load(buffer).then(workbook => {
-				console.log(workbook, 'workbook instance')
-				// workbook.eachSheet((sheet, id) => {
-				// 	sheet.eachRow((row, rowIndex) => {
-				// 		console.log(row.values, rowIndex)
-				// 	})
-				// })
-				const startRow = 4
-				const d = workbook.worksheets[0].getRows(startRow, workbook.worksheets[0].actualRowCount).map(r => r.values)
-				api.post('save', {
-					filename: 'test',
-					data: d,
-				}).then((res) => { alert(JSON.stringify(res)) }).catch(e => alert('error: ' + JSON.stringify(e)))
-				setData(d.map(row => {
-					row = row.map(cell => ({ editing: false, value: cell }))
-					return row
-				}))
-				console.log('rows: ', d)
-			})
+	const uploadExcelFiles = () => {
+		const formData = new FormData()
+		for (let i = 0; i < filesRef.current.length; i++) {
+			formData.append('files', filesRef.current[i])
 		}
+		
+		api.post('uploadExcelFiles', formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data'
+			}
+		}).then(res => {
+			getData()
+		})
 	}
+
+	// const handleImport = () => {
+	// 	const wb = new ExcelJS.Workbook()
+	// 	const reader = new FileReader()
+
+	// 	reader.readAsArrayBuffer(file)
+	// 	reader.onload = () => {
+	// 		const buffer = reader.result
+	// 		wb.xlsx.load(buffer).then(workbook => {
+	// 			console.log(workbook, 'workbook instance')
+	// 			// workbook.eachSheet((sheet, id) => {
+	// 			// 	sheet.eachRow((row, rowIndex) => {
+	// 			// 		console.log(row.values, rowIndex)
+	// 			// 	})
+	// 			// })
+	// 			const startRow = 4
+	// 			const d = workbook.worksheets[0].getRows(startRow, workbook.worksheets[0].actualRowCount).map(r => r.values)
+	// 			api.post('save', {
+	// 				filename: 'test',
+	// 				data: d,
+	// 			}).then((res) => { alert(JSON.stringify(res)) }).catch(e => alert('error: ' + JSON.stringify(e)))
+	// 			setData(d.map(row => {
+	// 				row = row.map(cell => ({ editing: false, value: cell }))
+	// 				return row
+	// 			}))
+	// 			console.log('rows: ', d)
+	// 		})
+	// 	}
+	// }
 
 	const handleKeyDown = (event) => {
 		if ((event.which == 13)) {
@@ -55,13 +96,36 @@ const App = () => {
 		}
 	}
 
+	const getData = useCallback(() => {
+		api.get('/getData').then(res => {
+			setData(res.data)
+			setFilteredData(res.data)
+			console.log('============= data: ', res.data)
+		})
+	}, [])
+
 	useEffect(() => {
+		getData()
 		// document.addEventListener("keydown", handleKeyDown)
 
 		// return () => {
 		// 	document.removeEventListener("keydown", handleKeyDown)
 		// }
 	}, [])
+
+	const fuzzySearch = useCallback((option) => {
+		const dataCopy = _.cloneDeep([...data])
+		if (option.value == 'All') {
+			setFilteredData([...dataCopy])
+			return
+		}
+
+		const filtered = dataCopy.map(item => {
+			item.data = item.data.filter(row => row.find(cell => cell == option.value))
+			return item
+		})
+		setFilteredData([...filtered])
+	}, [data])
 
 	const renderDataHeader = () => {
 		return (
@@ -114,12 +178,12 @@ const App = () => {
 		<div>
 			<div style={{ justifyContent: 'center', marginBottom: 8 }}>
 				Working {new Date().toLocaleDateString()}
-				<input style={{ marginLeft: 50 }} type="file" onChange={handleChange} />
-				<button onClick={handleImport}>Import</button>
+				<input style={{ marginLeft: 50 }} type="file" multiple onChange={handleChange} />
+				<button onClick={uploadExcelFiles}>Import</button>
 			</div>
 			<div>
-				{renderDataHeader()}
-				{data.map(row => (
+				{/* {renderDataHeader()} */}
+				{/* {data.map(row => (
 					<div style={{ display: 'flex', flexDirection: 'row', backgroundColor: '#8eb3ed', marginBottom: 4 }}>
 						{[1, 2, 3, 4, 5, 6, 7].map((col) => (
 							<div>
@@ -154,6 +218,22 @@ const App = () => {
 										)
 									}
 								</div>
+							</div>
+						))}
+					</div>
+				))} */}
+
+				<div>
+					<Select options={[{label: 'All', value: 'All'}, ...options]} onChange={fuzzySearch} />
+				</div>
+
+				{filteredData.map(item => (
+					<div>
+						{(item?.data || []).map(row => (
+							<div style={{borderBottom: '1px solid #555', marginBottom: 8}}>
+								{(row || []).map(cell => (
+									<span style={{padding: 8, paddingTop: 24, paddingBottom: 24}}>{'' + cell}</span>
+								))}
 							</div>
 						))}
 					</div>
