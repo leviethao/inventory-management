@@ -1,17 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import ExcelJS from 'exceljs'
 import moment from 'moment'
-import axios from 'axios'
 import TextAreaAutoSize from 'react-textarea-autosize'
 import './styles.css'
 import _ from 'lodash'
-import SelectSearch from 'react-select-search'
 import Select from 'react-select'
-
-const api = axios.create({
-	// baseURL: 'http://localhost:3001',
-	baseURL: 'https://a38b-123-21-86-62.ngrok.io'
-})
+import FileManagerModal from './components/Modals/FileManagerModal'
+import { api } from './services/api'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -20,6 +15,7 @@ const App = () => {
 	const [data, setData] = useState([])
 	const [filteredData, setFilteredData] = useState([])
 	const [options, setOptions] = useState([])
+	const fileManagerModalRef = useRef(null)
 
 	const createOptions = useCallback(() => {
 		/**
@@ -175,11 +171,12 @@ const App = () => {
 	}
 
 	return (
-		<div>
+		<div id='app-container'>
 			<div style={{ justifyContent: 'center', marginBottom: 8 }}>
 				Working {new Date().toLocaleDateString()}
 				<input style={{ marginLeft: 50 }} type="file" multiple onChange={handleChange} />
 				<button onClick={uploadExcelFiles}>Import</button>
+				<button onClick={() => fileManagerModalRef.current?.setVisible(true)}>File Manager</button>
 				<span style={{ marginLeft: 30, color: 'pink', fontSize: 24, fontWeight: 'bold'}}>Huế khó ưa !! &#128540; &#128540;</span>
 			</div>
 			<div>
@@ -250,6 +247,9 @@ const App = () => {
 				<video autoPlay loop muted src='https://www.youtube.com/watch?v=rN6nlNC9WQA'>
 				</video>
 			</div> */}
+
+			<FileManagerModal ref={fileManagerModalRef} />
+			
 		</div>
 	)
 }
