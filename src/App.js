@@ -7,6 +7,7 @@ import _ from 'lodash'
 import Select from 'react-select'
 import FileManagerModal from './components/Modals/FileManagerModal'
 import { api } from './services/api'
+import { config } from './config'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -176,7 +177,12 @@ const App = () => {
 				Working {new Date().toLocaleDateString()}
 				<input style={{ marginLeft: 50 }} type="file" multiple onChange={handleChange} />
 				<button onClick={uploadExcelFiles}>Import</button>
-				<button onClick={() => fileManagerModalRef.current?.setVisible(true)}>File Manager</button>
+				<button
+					onClick={() => fileManagerModalRef.current?.setVisible(true)}
+					style={{ marginLeft: 16 }}
+				>
+					File Manager
+				</button>
 				<span style={{ marginLeft: 30, color: 'pink', fontSize: 24, fontWeight: 'bold'}}>Huế khó ưa !! &#128540; &#128540;</span>
 			</div>
 			<div>
@@ -221,21 +227,44 @@ const App = () => {
 					</div>
 				))} */}
 
-				<div>
-					<Select options={[{label: 'All', value: 'All'}, ...options]} placeholder='Search' onChange={fuzzySearch} />
+				<div style={{marginBottom: 32, marginTop: 16}}>
+					<Select
+						styles={{
+							option: (provided, state) => ({
+								...provided,
+								color: state.isSelected ? 'green' : 'black',
+								backgroundColor: 'rgba(252, 159, 203, 0.5)'
+							}),
+						}} 
+						options={[{label: 'All', value: 'All'}, ...options]} placeholder='Search' onChange={fuzzySearch}
+					/>
 				</div>
 
 				{filteredData.map((item, index) => (
 					<div>
 						{item.data.length ? (
-							<div style={{ marginTop: 32, marginBottom: 16}} key={`file-${index}`}>
-								<span style={{ fontWeight: 'bold', textAlign: 'center'}}>===================== Filename: {item.filename} ===================</span>
+							<div style={{ marginTop: 32, marginBottom: 16, display: 'flex', justifyContent: 'center'}} key={`file-${index}`}>
+								<span style={{ fontWeight: 'bold', textAlign: 'center'}}>===================== Filename: {item.filename} =====================</span>
 							</div>
 						) : null}
 						{(item?.data || []).map((row, rIndex) => (
-							<div style={{ paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? '#d7e8f7' : 'white'}} key={`row-${rIndex}`}>
+							<div style={{ display: 'flex', flexDirection: 'row', paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? 'rgba(215, 232, 247, 0.5)' : 'rgba(255, 255, 255, 0.5)'}} key={`row-${rIndex}`}>
 								{Object.keys(row).map((key, cIndex) => (
-									<span style={{padding: 24, paddingTop: 24, paddingBottom: 24}} key={`cell-${cIndex}`}>{'' + typeof row[key] == 'object' ? row[key].result : row[key]}</span>
+									<div
+										style={{
+											padding: 24,
+											paddingTop: 24,
+											paddingBottom: 24,
+											minWidth: cIndex == 0 ? 30: 350,
+											// backgroundColor: 'red',
+											// borderRight: '2px solid #fff',
+											display: 'flex',
+											justifyContent: cIndex == 0 ? 'center' : 'flex-start'
+										}} 
+										key={`cell-${cIndex}`}
+									>
+										{'' + typeof row[key] == 'object' ? row[key].result : row[key]}
+									</div>
 								))}
 							</div>
 						))}
@@ -243,10 +272,16 @@ const App = () => {
 				))}
 			</div>
 
-			{/* <div>
-				<video autoPlay loop muted src='https://www.youtube.com/watch?v=rN6nlNC9WQA'>
-				</video>
-			</div> */}
+			<video autoPlay loop muted style={{
+				position: 'fixed',
+				right: 0,
+				bottom: 0,
+				minWidth: '100%',
+				minHeight: '100%',
+				zIndex: -1,
+			}}>
+				<source src={`${config.API_URL}/videos/pink-flower.mp4`} type="video/mp4" />
+			</video>
 
 			<FileManagerModal ref={fileManagerModalRef} />
 			

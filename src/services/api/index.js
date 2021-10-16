@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { config } from '../../config'
 
 const api = axios.create({
-	baseURL: 'https://a38b-123-21-86-62.ngrok.io'
+	baseURL: config.API_URL || 'http://localhost:3001'
 })
 
 export {
