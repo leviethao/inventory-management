@@ -4,10 +4,11 @@ import moment from 'moment'
 import TextAreaAutoSize from 'react-textarea-autosize'
 import './styles.css'
 import _ from 'lodash'
-import Select from 'react-select'
+import Select, { components } from 'react-select'
 import FileManagerModal from './components/Modals/FileManagerModal'
 import { api } from './services/api'
 import { config } from './config'
+import CustomOption from './components/Layouts/CustomOption'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -17,26 +18,39 @@ const App = () => {
 	const [filteredData, setFilteredData] = useState([])
 	const [options, setOptions] = useState([])
 	const fileManagerModalRef = useRef(null)
+	const [productListByCategory, setProductListByCategory] = useState({})
+	const [selectedProduct, setSelectedProduct] = useState(null)
 
 	const createOptions = useCallback(() => {
 		/**
 		 * The options array should contain objects.
 		 * Required keys are "name" and "value" but you can have and use any number of key/value pairs.
 		 */
-		if (!data?.length) return
+		
 		try {
 			// const opts = _.flattenDeep(data.map(item => item.data)).filter(o => o !== null && typeof o !== 'object').map(o => ({label: '' + o, value: '' + o}))
-			const opts = _.flattenDeep(data.map(item => item.data)).map(item => ({label: item.description, value: item.description})).filter(opt => opt.value != undefined)
-			console.log(' ================= options: ', opts)
+			// const opts = _.flattenDeep(data.map(item => item.data)).map(item => ({label: item.description, value: item.description})).filter(opt => opt.value != undefined)
+
+			let opts = []
+			Object.keys(productListByCategory).forEach(category => {
+				productListByCategory[category]?.products?.length && productListByCategory[category].products.forEach(product => {
+					opts.push({
+						...product,
+						label: product.name,
+						value: product.name,
+						category: category
+					})
+				})
+			})
 			setOptions(opts)
 		} catch (e) {
 			console.log('=== Exception: ', e)
 		}
-	}, [data])
+	}, [productListByCategory])
 
 	useEffect(() => {
 		createOptions()
-	}, [data, createOptions])
+	}, [productListByCategory, createOptions])
 
 	const handleChange = (e) => {
 		filesRef.current = e.target.files
@@ -97,12 +111,111 @@ const App = () => {
 		api.get('/getData').then(res => {
 			setData(res.data)
 			setFilteredData(res.data)
-			console.log('============= data: ', res.data)
+		})
+	}, [])
+
+	const getCategoriesURL = useCallback(async () => {
+		return new Promise((resolve, reject) => {
+			api.get('/crawlHTML', {
+				params: {
+					url: 'https://greenseeds.net/shop'
+				}
+			}).then(res => {
+				const strHTML = res.data || ''
+				const html = document.createElement('html')
+				html.innerHTML = strHTML
+				const categoryList = html.querySelectorAll('#shop-sidebar .accordion .accordion-item')
+
+				const QUERY_CATETORIES = ['Vegetable seeds', 'Flower seeds']
+				const listUrlFiltered = []
+				categoryList.forEach(category => {
+					const categoryName = category.querySelector('.accordion-title span').innerHTML
+					if (QUERY_CATETORIES.includes(categoryName)) {
+						const categoryUrlList = category.querySelectorAll('.accordion-inner ul ul.menu li a')
+						categoryUrlList.forEach(aTag => listUrlFiltered.push(aTag.href))
+					}
+				})
+
+				resolve(listUrlFiltered)
+			}).catch(e => {
+				reject(e)
+				console.log('crawlHTML error: ', e)
+			})
+		})
+	}, [])
+
+	const getProductListByCategory = useCallback(async () => {
+		const categoryUrlList = await getCategoriesURL()
+		if (!categoryUrlList.length) return null
+
+		let categories = {
+			// eggplant: {
+			// 	products: [
+
+			// 	]
+			// }
+		}
+
+		let finishCount = 0
+		return new Promise((resolve, reject) => {
+			categoryUrlList.forEach(url => {
+				api.get('/crawlHTML', {
+					params: {
+						url,
+					}
+				}).then(res => {
+					const strHTML = res.data || ''
+					const html = document.createElement('html')
+					html.innerHTML = strHTML
+					const productList = html.querySelector('.shop-container .products').getElementsByClassName('product-small box')
+		
+					for (let i = 0; i < productList.length; i++) {
+						const productElement = productList.item(i)
+						
+						const productName = productElement?.querySelector('.title-wrapper .product-title a')
+						const strName = productName?.innerHTML || ''
+		
+						const productImageUrl = productElement?.querySelector('.box-image .image-zoom-fade a img').src
+						const productDetailUrl = productElement?.querySelector('.box-image .image-zoom-fade a').href
+		
+						const product = {
+							name: strName,
+							imageUrl: productImageUrl,
+							detailUrl: productDetailUrl,
+						}
+	
+						const categoryName = url.split('/').pop()
+						if (categories[categoryName]) {
+							if (categories[categoryName].products) {
+								categories[categoryName].products.push(product)
+							} else {
+								categories[categoryName].products = [product]
+							}
+						} else {
+							categories[categoryName] = {
+								products: [product]
+							}
+						}
+					}
+
+					finishCount++
+					if (finishCount == categoryUrlList.length) {
+						resolve(categories)
+					}
+				}).catch(e => {
+					finishCount++
+					if (finishCount == categoryUrlList.length) {
+						resolve(categories)
+					}
+					console.log('catch e: ', e)
+				})
+			})
 		})
 	}, [])
 
 	useEffect(() => {
 		getData()
+		getProductListByCategory().then(productsByCategory => setProductListByCategory(productsByCategory))
 		// document.addEventListener("keydown", handleKeyDown)
 
 		// return () => {
@@ -114,13 +227,29 @@ const App = () => {
 		const dataCopy = _.cloneDeep([...data])
 		if (option.value == 'All') {
 			setFilteredData([...dataCopy])
+			setSelectedProduct(null)
 			return
 		}
 
+		setSelectedProduct(option)
+
 		const filtered = dataCopy.map(item => {
-			item.data = item.data.filter(row => row.description == option.value)
+			item.data = item.data.filter(row => (row.description || '').toLowerCase().trim().includes((option.value || '').toLowerCase().trim().split(' ')[0]))
 			return item
 		})
+		
+		// Check if has accurate result
+		for (const item of filtered) {
+			for (const row of item.data) {
+				if ((row.description || '').toLowerCase().trim() == (option.value || '').toLowerCase().trim()) {
+					item.data = [row]
+					setFilteredData([item])
+					return
+				}
+			}
+		}
+
+		// List of result
 		setFilteredData([...filtered])
 	}, [data])
 
@@ -237,39 +366,59 @@ const App = () => {
 							}),
 						}} 
 						options={[{label: 'All', value: 'All'}, ...options]} placeholder='Search' onChange={fuzzySearch}
+						components={{Option: CustomOption}}
 					/>
 				</div>
 
-				{filteredData.map((item, index) => (
-					<div>
-						{item.data.length ? (
-							<div style={{ marginTop: 32, marginBottom: 16, display: 'flex', justifyContent: 'center'}} key={`file-${index}`}>
-								<span style={{ fontWeight: 'bold', textAlign: 'center'}}>===================== Filename: {item.filename} =====================</span>
-							</div>
-						) : null}
-						{(item?.data || []).map((row, rIndex) => (
-							<div style={{ display: 'flex', flexDirection: 'row', paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? 'rgba(215, 232, 247, 0.5)' : 'rgba(255, 255, 255, 0.5)'}} key={`row-${rIndex}`}>
-								{Object.keys(row).map((key, cIndex) => (
-									<div
-										style={{
-											padding: 24,
-											paddingTop: 24,
-											paddingBottom: 24,
-											minWidth: cIndex == 0 ? 30: 350,
-											// backgroundColor: 'red',
-											// borderRight: '2px solid #fff',
-											display: 'flex',
-											justifyContent: cIndex == 0 ? 'center' : 'flex-start'
-										}} 
-										key={`cell-${cIndex}`}
-									>
-										{'' + typeof row[key] == 'object' ? row[key].result : row[key]}
-									</div>
-								))}
-							</div>
-						))}
+				<div style={{display: 'flex', flexDirection: 'row', height: selectedProduct ? '74vh' : '76vh'}}>
+					{selectedProduct ? (
+						<div style={{display: 'flex', flexDirection: 'column', flex: 1, height: '100%'}}>
+							<div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}><h2>Product Detail</h2></div>
+							<iframe
+								src={selectedProduct.detailUrl}
+								title="Product Detail"
+								style={{flex: 1}}
+							></iframe>
+						</div>
+					) : null}
+					<div style={{ flex: 2, height: '100%' }}>
+						{selectedProduct ? (<div style={{ display: 'flex', width: '100%', height: '13%', justifyContent: 'center' }}><h2>Corresponding Scientific Name</h2></div>) : null}
+						<div style={{display: 'flex', flexDirection: 'column', height: selectedProduct ? '87%' : '100%', overflowY: 'scroll'}}>
+							{(filteredData.find(t => t?.data && t?.data.length)) ? filteredData.map((item, index) => (
+								<div>
+									{item.data.length ? (
+										<div style={{ marginTop: 32, marginBottom: 16, display: 'flex', justifyContent: 'center'}} key={`file-${index}`}>
+											<span style={{ fontWeight: 'bold', textAlign: 'center'}}>===================== Filename: {item.filename} =====================</span>
+										</div>
+									) : null}
+									{(item?.data || []).map((row, rIndex) => (
+										<div style={{ display: 'flex', flexDirection: 'row', paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? 'rgba(215, 232, 247, 0.5)' : 'rgba(255, 255, 255, 0.5)'}} key={`row-${rIndex}`}>
+											{Object.keys(row).map((key, cIndex) => (
+												<div
+													style={{
+														padding: 24,
+														paddingTop: 24,
+														paddingBottom: 24,
+														minWidth: cIndex == 0 ? 30: 350,
+														// backgroundColor: 'red',
+														// borderRight: '2px solid #fff',
+														display: 'flex',
+														justifyContent: cIndex == 0 ? 'center' : 'flex-start'
+													}} 
+													key={`cell-${cIndex}`}
+												>
+													{'' + typeof row[key] == 'object' ? row[key].result : row[key]}
+												</div>
+											))}
+										</div>
+									))}
+								</div>
+							)) : (
+								<div style={{ display: 'flex', width: '100%', justifyContent: 'center', color: '#888' }}><h2>Empty Data</h2></div>
+							)}
+						</div>
 					</div>
-				))}
+				</div>
 			</div>
 
 			<video autoPlay loop muted style={{
