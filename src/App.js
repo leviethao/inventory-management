@@ -10,6 +10,7 @@ import { api } from './services/api'
 import { config } from './config'
 import CustomOption from './components/Layouts/CustomOption'
 import PageLoading from './components/Layouts/PageLoading'
+import Timer from './components/Layouts/Timer'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -311,7 +312,7 @@ const App = () => {
 	return (
 		<div id='app-container'>
 			<div style={{ justifyContent: 'center', marginBottom: 8 }}>
-				Working {new Date().toLocaleDateString()}
+				Working <Timer />
 				<input style={{ marginLeft: 50 }} type="file" multiple onChange={handleChange} />
 				<button onClick={uploadExcelFiles}>Import</button>
 				<button
