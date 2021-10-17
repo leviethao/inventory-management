@@ -19,6 +19,7 @@
     "exceljs": "^4.3.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
+    "node-sass": "^4.0.0",
     "react": "^17.0.2",
     "react-dom": "^16.11.0",
     "react-modal": "^3.14.3",

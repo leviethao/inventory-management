@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import ExcelJS from 'exceljs'
 import moment from 'moment'
 import TextAreaAutoSize from 'react-textarea-autosize'
-import './styles.css'
+import './styles.scss'
 import _ from 'lodash'
 import Select, { components } from 'react-select'
 import FileManagerModal from './components/Modals/FileManagerModal'
@@ -11,6 +11,7 @@ import { config } from './config'
 import CustomOption from './components/Layouts/CustomOption'
 import PageLoading from './components/Layouts/PageLoading'
 import Timer from './components/Layouts/Timer'
+import SearchInput from './components/Layouts/SearchInput'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -112,8 +113,8 @@ const App = () => {
 
 	const getData = useCallback(() => {
 		api.get('/getData').then(res => {
-			setData(res.data)
-			setFilteredData(res.data)
+			setData([..._.cloneDeep(res.data)])
+			setFilteredData([..._.cloneDeep(res.data)])
 		})
 	}, [])
 
@@ -218,7 +219,7 @@ const App = () => {
 
 	useEffect(() => {
 		getData()
-		getProductListByCategory().then(productsByCategory => setProductListByCategory(productsByCategory))
+		// getProductListByCategory().then(productsByCategory => setProductListByCategory(productsByCategory))
 		// document.addEventListener("keydown", handleKeyDown)
 
 		// return () => {
@@ -227,30 +228,59 @@ const App = () => {
 	}, [])
 
 	useEffect(() => {
-		if (filteredData.length && options.length) {
+		if (filteredData.length) {
 			setLoading(false)
 		}
-	}, [filteredData, options])
+	}, [filteredData])
 
-	const fuzzySearch = useCallback((option) => {
+	// const fuzzySearch = useCallback((option) => {
+	// 	const dataCopy = _.cloneDeep([...data])
+	// 	if (option.value == 'All') {
+	// 		setFilteredData([...dataCopy])
+	// 		setSelectedProduct(null)
+	// 		return
+	// 	}
+
+	// 	setSelectedProduct(option)
+
+	// 	const filtered = dataCopy.map(item => {
+	// 		item.data = item.data.filter(row => (row.description || '').toLowerCase().trim().includes((option.value || '').toLowerCase().trim().split(' ')[0]))
+	// 		return item
+	// 	})
+		
+	// 	// Check if has accurate result
+	// 	for (const item of filtered) {
+	// 		for (const row of item.data) {
+	// 			if ((row.description || '').toLowerCase().trim() == (option.value || '').toLowerCase().trim()) {
+	// 				item.data = [row]
+	// 				setFilteredData([item])
+	// 				return
+	// 			}
+	// 		}
+	// 	}
+
+	// 	// List of result
+	// 	setFilteredData([...filtered])
+	// }, [data])
+
+	const search = useCallback((product) => {
 		const dataCopy = _.cloneDeep([...data])
-		if (option.value == 'All') {
+		if (!product || product.value == 'All') {
 			setFilteredData([...dataCopy])
 			setSelectedProduct(null)
 			return
 		}
 
-		setSelectedProduct(option)
-
+		setSelectedProduct(product)
 		const filtered = dataCopy.map(item => {
-			item.data = item.data.filter(row => (row.description || '').toLowerCase().trim().includes((option.value || '').toLowerCase().trim().split(' ')[0]))
+			item.data = item.data.filter(row => (row.description || '').toLowerCase().trim().includes((product.value || '').toLowerCase().trim().split(' ')[0]))
 			return item
 		})
 		
 		// Check if has accurate result
 		for (const item of filtered) {
 			for (const row of item.data) {
-				if ((row.description || '').toLowerCase().trim() == (option.value || '').toLowerCase().trim()) {
+				if ((row.description || '').toLowerCase().trim() == (product.value || '').toLowerCase().trim()) {
 					item.data = [row]
 					setFilteredData([item])
 					return
@@ -366,7 +396,8 @@ const App = () => {
 				))} */}
 
 				<div style={{marginBottom: 32, marginTop: 16}}>
-					<Select
+					<SearchInput onSelect={search} />
+					{/* <Select
 						styles={{
 							option: (provided, state) => ({
 								...provided,
@@ -376,7 +407,7 @@ const App = () => {
 						}} 
 						options={[{label: 'All', value: 'All'}, ...options]} placeholder='Search' onChange={fuzzySearch}
 						components={{Option: CustomOption}}
-					/>
+					/> */}
 				</div>
 
 				<div style={{display: 'flex', flexDirection: 'row', height: selectedProduct ? '74vh' : '76vh'}}>
@@ -384,11 +415,10 @@ const App = () => {
 						<div style={{display: 'flex', flexDirection: 'column', flex: 1, height: '100%'}}>
 							<div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}><h2>Product Detail</h2></div>
 							<iframe
-								src={selectedProduct.detailUrl}
+								src={selectedProduct.url}
 								title="Product Detail"
 								style={{flex: 1, background: 'transparent'}}
 								frameBorder={0}
-								allowTransparency={true}
 							></iframe>
 						</div>
 					) : null}
