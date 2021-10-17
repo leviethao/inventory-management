@@ -9,6 +9,7 @@ import FileManagerModal from './components/Modals/FileManagerModal'
 import { api } from './services/api'
 import { config } from './config'
 import CustomOption from './components/Layouts/CustomOption'
+import PageLoading from './components/Layouts/PageLoading'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -20,6 +21,7 @@ const App = () => {
 	const fileManagerModalRef = useRef(null)
 	const [productListByCategory, setProductListByCategory] = useState({})
 	const [selectedProduct, setSelectedProduct] = useState(null)
+	const [loading, setLoading] = useState(true)
 
 	const createOptions = useCallback(() => {
 		/**
@@ -223,6 +225,12 @@ const App = () => {
 		// }
 	}, [])
 
+	useEffect(() => {
+		if (filteredData.length && options.length) {
+			setLoading(false)
+		}
+	}, [filteredData, options])
+
 	const fuzzySearch = useCallback((option) => {
 		const dataCopy = _.cloneDeep([...data])
 		if (option.value == 'All') {
@@ -362,7 +370,7 @@ const App = () => {
 							option: (provided, state) => ({
 								...provided,
 								color: state.isSelected ? 'green' : 'black',
-								backgroundColor: 'rgba(252, 159, 203, 0.5)'
+								backgroundColor: 'rgba(252, 159, 203, 0.3)'
 							}),
 						}} 
 						options={[{label: 'All', value: 'All'}, ...options]} placeholder='Search' onChange={fuzzySearch}
@@ -377,7 +385,9 @@ const App = () => {
 							<iframe
 								src={selectedProduct.detailUrl}
 								title="Product Detail"
-								style={{flex: 1}}
+								style={{flex: 1, background: 'transparent'}}
+								frameBorder={0}
+								allowTransparency={true}
 							></iframe>
 						</div>
 					) : null}
@@ -392,7 +402,7 @@ const App = () => {
 										</div>
 									) : null}
 									{(item?.data || []).map((row, rIndex) => (
-										<div style={{ display: 'flex', flexDirection: 'row', paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? 'rgba(215, 232, 247, 0.5)' : 'rgba(255, 255, 255, 0.5)'}} key={`row-${rIndex}`}>
+										<div style={{ display: 'flex', flexDirection: 'row', paddingTop: 4, paddingBottom: 4, backgroundColor: rIndex % 2 == 0 ? 'rgba(215, 232, 247, 0.3)' : 'rgba(255, 255, 255, 0.3)'}} key={`row-${rIndex}`}>
 											{Object.keys(row).map((key, cIndex) => (
 												<div
 													style={{
@@ -434,6 +444,7 @@ const App = () => {
 
 			<FileManagerModal ref={fileManagerModalRef} />
 			
+			{loading && <PageLoading />}
 		</div>
 	)
 }
