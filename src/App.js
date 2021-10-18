@@ -341,7 +341,7 @@ const App = () => {
 
 	return (
 		<div id='app-container'>
-			<div style={{ justifyContent: 'center', marginBottom: 8 }}>
+			<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 				Working <Timer />
 				<input style={{ marginLeft: 50 }} type="file" multiple onChange={handleChange} />
 				<button onClick={uploadExcelFiles}>Import</button>
@@ -351,7 +351,7 @@ const App = () => {
 				>
 					File Manager
 				</button>
-				<span style={{ marginLeft: 30, color: 'pink', fontSize: 24, fontWeight: 'bold'}}>Huế khó ưa !! &#128540; &#128540;</span>
+				<div style={{ marginLeft: 30, color: '#f7dcf2', fontSize: 24, fontWeight: 'bold'}}>Chị Huế làm việc vui vẻ !! &#128540; &#128540;</div>
 			</div>
 			<div>
 				{/* {renderDataHeader()} */}
