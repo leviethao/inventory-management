@@ -351,7 +351,7 @@ const App = () => {
 				>
 					File Manager
 				</button>
-				<div style={{ marginLeft: 30, color: '#f7dcf2', fontSize: 24, fontWeight: 'bold'}}>Chị Huế làm việc vui vẻ !! &#128540; &#128540;</div>
+				<div style={{ marginLeft: 30, color: '#f7dcf2', fontSize: 24, fontWeight: 'bold'}}>Huế đẹp trai !! &#10084;</div>
 			</div>
 			<div>
 				{/* {renderDataHeader()} */}
