@@ -12,6 +12,7 @@ import CustomOption from './components/Layouts/CustomOption'
 import PageLoading from './components/Layouts/PageLoading'
 import Timer from './components/Layouts/Timer'
 import SearchInput from './components/Layouts/SearchInput'
+import ConfirmDialog from './components/Modals/ConfirmDialog'
 
 const CELL_WIDTH_LIST = [0, 100, 200, 200, 200, 200, 300, 300]
 
@@ -24,6 +25,7 @@ const App = () => {
 	const [productListByCategory, setProductListByCategory] = useState({})
 	const [selectedProduct, setSelectedProduct] = useState(null)
 	const [loading, setLoading] = useState(true)
+	const confirmDialogRef = useRef(null)
 
 	const createOptions = useCallback(() => {
 		/**
@@ -219,6 +221,7 @@ const App = () => {
 
 	useEffect(() => {
 		getData()
+		confirmDialogRef.current && confirmDialogRef.current.setVisible(true)
 		// getProductListByCategory().then(productsByCategory => setProductListByCategory(productsByCategory))
 		// document.addEventListener("keydown", handleKeyDown)
 
@@ -474,6 +477,7 @@ const App = () => {
 			</video>
 
 			<FileManagerModal ref={fileManagerModalRef} />
+			<ConfirmDialog ref={confirmDialogRef} title={'Hỏi'} content={'Giận em hay sao mà ko rep Zalo ^^'} btnYES={'Có'} btnNO={'Không'} />
 			
 			{loading && <PageLoading />}
 		</div>
