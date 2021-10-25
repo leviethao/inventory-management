@@ -219,15 +219,40 @@ const App = () => {
 		})
 	}, [])
 
+	const onUnload = useCallback(() => {
+		api.post('/activityLog', {
+			action: 'exit',
+			info: {
+				deviceInfo: navigator.userAgentData
+			}
+		})
+	}, [])
+
 	useEffect(() => {
 		getData()
-		confirmDialogRef.current && confirmDialogRef.current.setVisible(true)
+
+		// log
+		api.post('/activityLog', {
+			action: 'start',
+			info: {
+				deviceInfo: navigator.userAgentData
+			}
+		})
+
+		window.addEventListener('beforeunload', onUnload)
+		window.onhashchange = () => {
+			onUnload()
+		}
+
+		// confirmDialogRef.current && confirmDialogRef.current.setVisible(true)
 		// getProductListByCategory().then(productsByCategory => setProductListByCategory(productsByCategory))
 		// document.addEventListener("keydown", handleKeyDown)
 
-		// return () => {
-		// 	document.removeEventListener("keydown", handleKeyDown)
-		// }
+		return () => {
+			// document.removeEventListener("keydown", handleKeyDown)
+			window.removeEventListener('beforeunload', onUnload)
+			window.onhashchange = () => {}
+		}
 	}, [])
 
 	useEffect(() => {
