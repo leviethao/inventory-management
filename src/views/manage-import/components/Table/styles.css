@@ -1,0 +1,170 @@
+.table-container {
+    overflow-x: scroll;
+    width: 100%; /*this value will change dynamic in js code*/
+    margin-top: 100px;
+}
+.table-header {
+    /* background-color: red; */
+    /* min-height: 100%; */
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: #1d8cf8;
+    background-image: linear-gradient(to bottom left, #1d8cf8, #3358f4, #1d8cf8);
+    background-size: 210% 210%;
+    background-position: top right;
+    background-attachment: local;
+
+    color: #ffffff;
+    box-shadow: 2px 2px 6px rgb(0 0 0 / 40%);
+
+    transition: all 300ms ease 0s;
+
+    border-radius: 0.25rem;
+}
+
+.table-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-header-item {
+    padding: 0px 8px 0px 8px;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    /* background-color: yellow; */
+    /* margin: 2px; */
+    text-align: center;
+    border-right-width: 2px;
+    border-right-color: #263148;
+    border-right-style: solid;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.table-row {
+    background: #344675;
+    background-image: linear-gradient(to bottom left, #344675, #263148, #344675);
+    background-size: 210% 210%;
+    background-position: top right;
+    background-color: #344675;
+    transition: all 0.15s ease;
+    box-shadow: none;
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 80px;
+    align-items: center;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+.table-row:hover {
+    background-image: linear-gradient(to bottom left, #344675, #8aa967, #6b7534);
+}
+
+.table-cell {
+    word-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* background-color: red; */
+    /* margin: 6px; */
+    width: 150px;
+    padding: 12px 8px 12px 8px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    display: flex;
+}
+
+.table-cell .css-1pysi21-MuiFormLabel-root-MuiInputLabel-root {
+    color: #fff;
+}
+
+.table-cell .css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root {
+    color: #fff;
+}
+
+.table-cell .css-19qh8xo-MuiInputBase-input-MuiOutlinedInput-input {
+    color: #fff;
+}
+
+.table-cell .css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root {
+    color: rgba(255, 255, 255, 0.8)
+}
+
+.table-cell button:focus {
+    outline: 5px auto rgba(255, 255, 255, 0.8);
+}
+
+.table-cell .css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root:hover {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.table-cell .css-1d3z3hw-MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.table-cell .css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.table-cell .css-1sumxir-MuiFormLabel-root-MuiInputLabel-root {
+    color:rgba(255, 255, 255, 0.8);
+}
+
+.table-cell .css-1sumxir-MuiFormLabel-root-MuiInputLabel-root.Mui-focused {
+    color: #fff;
+}
+
+.table-cell .css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.table-cell .css-i4bv87-MuiSvgIcon-root {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.table-cell .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator:hover {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.table-cell .css-113ntv0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator:hover {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.table-cell .css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.table-cell .css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator:hover {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.table-cell textarea {
+    background: rgba(255, 255, 255, 0);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.16);
+    border-radius: 4px;
+    border-width: 1px;
+    padding: 8.5px 14px;
+}
+
+.table-cell textarea:focus {
+    outline: 0;
+    border-color: #fff;
+}
+
+.table-cell .css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* .table-cell .css-1pysi21-MuiFormLabel-root-MuiInputLabel-root {
+    font-size: 0.875rem;
+} */

@@ -9,27 +9,33 @@ import Index from "./views/manage-import/Index";
 import LandingPage from "./views/manage-import/examples/LandingPage";
 import RegisterPage from "./views/manage-import/examples/RegisterPage";
 import ProfilePage from "./views/manage-import/examples/ProfilePage";
+import ManageImport from "views/manage-import/ManageImport";
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 const App = () => {
     return (
-        <BrowserRouter>
-            <Switch>
-            <Route path="/components" render={(props) => <Index {...props} />} />
-            <Route
-                path="/landing-page"
-                render={(props) => <LandingPage {...props} />}
-            />
-            <Route
-                path="/register-page"
-                render={(props) => <RegisterPage {...props} />}
-            />
-            <Route
-                path="/profile-page"
-                render={(props) => <ProfilePage {...props} />}
-            />
-            <Redirect from="/" to="/components" />
-            </Switch>
-        </BrowserRouter>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <BrowserRouter>
+                <Switch>
+                <Route path="/" render={(props) => <ManageImport {...props} />} />
+                <Route path="/components" render={(props) => <Index {...props} />} />
+                <Route
+                    path="/landing-page"
+                    render={(props) => <LandingPage {...props} />}
+                />
+                <Route
+                    path="/register-page"
+                    render={(props) => <RegisterPage {...props} />}
+                />
+                <Route
+                    path="/profile-page"
+                    render={(props) => <ProfilePage {...props} />}
+                />
+                {/* <Redirect from="/" to="/components" /> */}
+                </Switch>
+            </BrowserRouter>
+        </LocalizationProvider>
     )
 }
 export default App

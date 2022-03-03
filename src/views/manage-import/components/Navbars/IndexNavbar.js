@@ -79,11 +79,10 @@ export default function IndexNavbar() {
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" tag={Link} id="navbar-brand">
-            <span>BLK• </span>
-            Design System React
+            <span>Green • Import Management</span>
           </NavbarBrand>
           <UncontrolledTooltip placement="bottom" target="navbar-brand">
-            Designed and Coded by Creative Tim
+            Designed and Coded by SuHao
           </UncontrolledTooltip>
           <button
             aria-expanded={collapseOpen}
