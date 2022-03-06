@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import './styles.css'
-import { headerList, dataList, options } from './data'
+import { headerList, dataList, options, createNewRow, rowToObject } from './data'
 import DatePicker from '@mui/lab/DatePicker';
 import TextField from '@mui/material/TextField';
 import { OptionType, TableDataType } from './types'
 import DebounceTextField from '../DebounceTextField';
-import { Autocomplete, Button } from '@mui/material';
+import { Autocomplete, Button, Fab, Tooltip } from '@mui/material';
 import DebounceTextareaAutosize from '../DebounceTextareaAutosize';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/RemoveCircle'
@@ -15,6 +15,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import EditIcon from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton';
 import moment from 'moment';
+import ImportManagementController from '../../../../controllers/import-management'
 
 const headerListDefault = [...headerList]
 const dataListDefault = [...dataList]
@@ -25,8 +26,9 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     const [data, setData] = useState(dataList)
 
     useEffect(() => {
-        const mappedData = dataList.map(cells => ({cells: cells, editing: false}))
-        setData(mappedData)
+        // const mappedData = dataList.map(cells => ({cells: cells, editing: false}))
+        // setData(mappedData)
+        setData(dataList)
     }, [dataList])
 
     useEffect(() => {
@@ -44,6 +46,16 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
             window.removeEventListener('resize', handleResize)
         }
     }, [headerList, setWidth])
+
+    const onClickCreateNewRow = useCallback(() => {
+        setData(x => {
+            let newData = [...x]
+            newData.unshift({cells: createNewRow({}), editing: true})
+            return newData
+        })
+    }, [])
+
+    console.log('data: ', data)
 
     const renderHeaderList = useCallback(() => {
         return (
@@ -78,14 +90,19 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     }, [])
 
     const onClickSaveRow = useCallback((rowIndex) => {
-        return () => {
-            setData(x => {
-                let newData = [...x]
-                newData[rowIndex].editing = false
-                return newData
-            })
+        return async () => {
+            const order = rowToObject(data[rowIndex].cells, data[rowIndex].Id)
+            console.log('order: ', order)
+            const result = await ImportManagementController.updateOrder(order)
+            if (result.isSuccess) {
+                setData(x => {
+                    let newData = [...x]
+                    newData[rowIndex].editing = false
+                    return newData
+                })
+            }
         }
-    }, [])
+    }, [data])
 
     const onClickDeleteRow = useCallback((rowIndex) => {
         return () => {
@@ -115,12 +132,12 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 let newData = [...x]
                 if (newData[rowIndex].cells[cellIndex].value) {
                     let productItem = {
-                        name: '',
-                        amount: 0,
-                        unit: 'KG',
-                        purity: 0,
-                        germination: 0,
-                        lot: ''
+                        Name: '',
+                        Amount: 0,
+                        Unit: 'KG',
+                        Purity: 0,
+                        Germination: 0,
+                        Lot: ''
                     }
                     newData[rowIndex].cells[cellIndex].value.push(productItem)
                 }
@@ -185,6 +202,14 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                 label="Select a value"
                                 size='small'
                             />}
+                            value={cell.value}
+                            onChange={(event) => {
+                                setData(x => {
+                                    let newData = [...x]
+                                    newData[rowIndex].cells[cellIndex].value = event.target.value
+                                    return newData
+                                })
+                            }}
                         />
                     )
                 }
@@ -192,14 +217,38 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 return cell.value
             case TableDataType.Custom.Product: {
                 let cellValues = cell.value || []
+                console.log('cellvalues: ', cellValues)
                 if (data[rowIndex].editing) {
                     return (
                         <div>
                             {cellValues.map((item, valueIndex) => (
                                 <div style={{borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.16)', borderStyle: 'solid', borderRadius: 4, padding: 8, marginBottom: 8}}>
-                                    <DebounceTextField value={item.name} label='Product name' style={{width: '100%'}} />
+                                    <DebounceTextField
+                                        value={item.Name}
+                                        label='Product name'
+                                        style={{width: '100%'}}
+                                        onChange={(newValue) => {
+                                            setData(x => {
+                                                let newData = [...x]
+                                                newData[rowIndex].cells[cellIndex].value[valueIndex].Name = newValue
+                                                return newData
+                                            })
+                                        }}
+                                    />
                                     <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
-                                        <DebounceTextField type='number' style={{width: '48%'}} label='Amount' />
+                                        <DebounceTextField 
+                                            type='number' 
+                                            style={{width: '48%'}} 
+                                            label='Amount' 
+                                            value={item.Amount}
+                                            onChange={(newValue) => {
+                                                setData(x => {
+                                                    let newData = [...x]
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Amount = newValue
+                                                    return newData
+                                                })
+                                            }} 
+                                        />
                                         <Autocomplete
                                             style={{width: '48%'}}
                                             options={options[OptionType.Unit]}
@@ -217,15 +266,60 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 label="Unit"
                                                 size='small'
                                             />}
+                                            value={item.Unit}
+                                            onChange={(event, newValue) => {
+                                                setData(x => {
+                                                    let newData = [...x]
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Unit = newValue.name
+                                                    console.log('value index: ', newData[rowIndex].cells[cellIndex].value[valueIndex])
+                                                    console.log('event.target.value: ', newValue.name)
+                                                    return newData
+                                                })
+                                            }}
                                         />
                                     </div>
                                     
                                     <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
-                                        <DebounceTextField type='number' style={{width: '48%'}} label='Purity' />
-                                        <DebounceTextField type='number' style={{width: '48%', fontSize: 12}} label='Germination' />
+                                        <DebounceTextField 
+                                            type='number' 
+                                            style={{width: '48%'}} 
+                                            label='Purity'
+                                            value={item.Purity}
+                                            onChange={(newValue) => {
+                                                setData(x => {
+                                                    let newData = [...x]
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Purity = newValue
+                                                    return newData
+                                                })
+                                            }}
+                                        />
+                                        <DebounceTextField 
+                                            type='number'
+                                            style={{width: '48%', fontSize: 12}} 
+                                            label='Germination'
+                                            value={item.Germination}
+                                            onChange={(newValue) => {
+                                                setData(x => {
+                                                    let newData = [...x]
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Germination = newValue
+                                                    return newData
+                                                })
+                                            }}
+                                        />
                                     </div>
                                     <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
-                                        <DebounceTextField value={item.name} label='Lot' style={{width: '48%'}} />
+                                        <DebounceTextField
+                                            value={item.Lot} 
+                                            label='Lot' 
+                                            style={{width: '48%'}}
+                                            onChange={(newValue) => {
+                                                setData(x => {
+                                                    let newData = [...x]
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Lot = newValue
+                                                    return newData
+                                                })
+                                            }}
+                                        />
                                         <Button startIcon={<RemoveIcon />} color='error' variant='contained' size='small' onClick={onClickDeleteProduct(rowIndex, cellIndex, valueIndex)}>
                                             Remove
                                         </Button>
@@ -289,6 +383,11 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         <div className='table-container' style={{width: width}}>
             {renderHeaderList()}
             {renderDataList()}
+            <Tooltip title='Create new Order'>
+                <Fab color='primary' aria-label="add" style={{position: 'fixed', zIndex: 2, right: '5vw', top: '80vh'}} onClick={onClickCreateNewRow}>
+                    <AddIcon />
+                </Fab>
+            </Tooltip>
         </div>
     )
 }

@@ -20,7 +20,7 @@ const DebounceTextareaAutosize = ({value = '', onChange = (text) => {}}) => {
 
     return (
         <TextareaAutosize
-            defaultValue={text}
+            value={text}
             aria-label="empty textarea"
             placeholder="Empty"
             onChange={onChangeText}

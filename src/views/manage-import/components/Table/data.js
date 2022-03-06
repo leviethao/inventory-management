@@ -1,3 +1,5 @@
+import moment from "moment"
+
 const { TableDataType, OptionType } = require("./types")
 
 export const options = {
@@ -312,80 +314,146 @@ export const headerList = [
     }
 ]
 
-export let dataList = new Array(10).fill([])
-for (let i = 0; i < dataList.length; i++) {
-    dataList[i] = [
+export const createNewRow = ({
+    Date: CreateDate = null,
+    Supplier,
+    Country,
+    Invoice,
+    Products,
+    Shipping,
+    ETD,
+    ETA,
+    BL,
+    Docs,
+    Payment,
+    Status,
+    Note
+}) => {
+    const newRow = [
         {
             type: TableDataType.Date,
-            value: Date.now()
+            value: CreateDate || moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
         },
         {
             type: TableDataType.Text,
-            value: 'ABC' + i
+            value: Supplier
         },
         {
             type: TableDataType.Select,
             optionType: OptionType.Country,
-            value: 'Viet Nam'
+            value: Country
         },
         {
             type: TableDataType.Text,
-            value: 'PI-36991'
+            value: Invoice
         },
         {
             type: TableDataType.Custom.Product,
-            value: i < 2 ? [
-                {
-                    name: 'water melon farmer gaint',
-                    amount: 250,
-                    unit: 'kg',
-                    purity: 1,
-                    germination: 25,
-                    lot: ''
+            value: Products,
+            // value: [
+            //     {
+            //         Name: 'water melon farmer gaint',
+            //         Amount: 250,
+            //         Unit: 'kg',
+            //         Purity: 1,
+            //         Germination: 25,
+            //         Lot: ''
     
-                },
-                {
-                    name: 'hihi hahah hahah',
-                    amount: 20,
-                    unit: 'kg',
-                    purity: 1,
-                    germination: 25,
-                    lot: ''
-                }
-            ] : []
+            //     },
+            //     {
+            //         Name: 'hihi hahah hahah',
+            //         Amount: 20,
+            //         Unit: 'kg',
+            //         Purity: 1,
+            //         Germination: 25,
+            //         Lot: ''
+            //     }
+            // ]
         },
         {
             type: TableDataType.Select,
             optionType: OptionType.Shipping,
-            value: 'SEA'
+            value: Shipping
         },
         {
             type: TableDataType.Date,
-            value: Date.now()
+            value: ETD || moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
         },
         {
             type: TableDataType.Date,
-            value: Date.now()
+            value: ETA || moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
         },
         {
             type: TableDataType.Text,
-            value: 'Some Text'
+            value: BL
         },
         {
             type: TableDataType.Text,
-            value: 'Some Text'
+            value: Docs
         },
         {
             type: TableDataType.Text,
-            value: 'L/C 60 days 32,794$'
+            value: Payment
         },
         {
             type: TableDataType.Text,
-            value: 'đang làm L/C nháp \n 24 feb có IP'
+            value: Status
         },
         {
             type: TableDataType.Text,
-            value: 'CHECK COI DUNG MAT HANG NAY Không VA CONFIRM'
+            value: Note
         }
     ]
+
+    return newRow
+}
+
+export let dataList = new Array(10).fill([])
+for (let i = 0; i < dataList.length; i++) {
+    dataList[i] = createNewRow({})
+}
+
+export const rowToObject = (row, id) => {
+    const rowObject = {
+        Id: id,
+        "Date": row[0]?.value,
+        Supplier: row[1]?.value,
+        Country: row[2]?.value,
+        Invoice: row[3]?.value,
+        Products: row[4]?.value,
+        Shipping: row[5]?.value,
+        ETD: row[6]?.value,
+        ETA: row[7]?.value,
+        BL: row[8]?.value,
+        Docs: row[9]?.value,
+        Payment: row[10]?.value,
+        Status: row[11]?.value,
+        Note: row[12]?.value,
+        UpdateTime: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+        UpdateBy: '' 
+    }
+
+    return rowObject
+}
+
+export const objectToRow = (obj) => {
+    const row = {
+        cells: createNewRow(obj) || [],
+            // obj.Date,
+            // obj.Supplier,
+            // obj.Country,
+            // obj.Invoice,
+            // obj.Products,
+            // obj.Shipping,
+            // obj.ETD,
+            // obj.ETA,
+            // obj.BL,
+            // obj.Docs,
+            // obj.Payment,
+            // obj.Status,
+            // obj.Note,
+        editing: false,
+        Id: obj.Id,
+    }
+    return row
 }

@@ -28,13 +28,13 @@ const DebounceTextField = ({
 
     return (
         <TextField
-            defaultValue={text}
             placeholder='Empty'
             type={type}
             onChange={onChangeText}
             style={style}
             label={label}
             size={size}
+            value={text}
         />
     )
 }

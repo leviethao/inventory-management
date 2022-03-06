@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 // core components
 import IndexNavbar from "./components/Navbars/IndexNavbar.js";
@@ -18,13 +18,21 @@ import Signup from "./IndexSections/Signup.js";
 import Examples from "./IndexSections/Examples.js";
 import Download from "./IndexSections/Download.js";
 import Table from "./components/Table/index.js";
-import { dataList, headerList } from "./components/Table/data.js";
+import { headerList, objectToRow } from "./components/Table/data.js";
 import { api } from "services/api/index.js";
+import ImportManagementController from "../../controllers/import-management/index.js";
 
 export default function ManageImport() {
+  const [dataList, setDataList] = useState([])
+
   React.useEffect(() => {
     document.body.classList.toggle("index-page");
-    api.get('/').then(res => console.log('res hihii: ', res.data))
+    ImportManagementController.getOrders().then(res => {
+      console.log('data: ', res.data)
+      const rows = res.data.map(item => objectToRow(item))
+      setDataList(rows)
+      console.log('rows: ', rows)
+    })
     // Specify how to clean up after this effect:
     return function cleanup() {
       document.body.classList.toggle("index-page");
@@ -38,7 +46,7 @@ export default function ManageImport() {
         {/* <PageHeader /> */}
         <div className="main">
           <Table headerList={headerList} dataList={dataList} />
-          <Basics />
+          {/* <Basics />
           <Navbars />
           <Tabs />
           <Pagination />
@@ -48,7 +56,7 @@ export default function ManageImport() {
           <NucleoIcons />
           <Signup />
           <Examples />
-          <Download />
+          <Download /> */}
         </div>
         <Footer />
       </div>
