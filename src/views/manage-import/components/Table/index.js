@@ -17,6 +17,8 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import IconButton from '@mui/material/IconButton';
 import moment from 'moment';
 import ImportManagementController from '../../../../controllers/import-management'
+import Select from "@mui/material/Select"
+import MenuItem from "@mui/material/MenuItem"
 
 const headerListDefault = [...headerList]
 const dataListDefault = [...dataList]
@@ -196,7 +198,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 }
 
                 return cell.value
-            case TableDataType.Select:
+            case TableDataType.AutoComplete:
                 if (data[rowIndex].editing) {
                     return (
                         <Autocomplete
@@ -227,6 +229,46 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                     )
                 }
 
+                return cell.value
+
+            case TableDataType.Select:
+                if (data[rowIndex].editing) {
+                    return (
+                        <Select
+                            value={cell.value}
+                            size={'small'}
+                            sx={{ width: 200 }}
+                            onChange={(event) => {
+                                setData(x => {
+                                    let newData = [...x]
+                                    newData[rowIndex].cells[cellIndex].value = event.target.value
+                                    return newData
+                                })
+                            }}
+                        >
+                            {options[cell.optionType].map(o => (
+                                <MenuItem value={o.code}>{o.name}</MenuItem>
+                            ))}
+                        </Select>
+                    )
+                }
+
+                if (cell.optionType === OptionType.ShipmentStatus)
+                    return (
+                        <div
+                            style={{
+                                padding: '4px 8px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 4,
+                                backgroundColor: {Preparing: '#fff', Inprogress: '#1d8cf8', Done: '#0f0', Canceled: '#737375'}[cell.value],
+                                color: {Preparing: '#000', Inprogress: '#fff', Done: '#000', Canceled: '#fff'}[cell.value]
+                            }}
+                        >
+                            <div>{cell.value}</div>
+                        </div>
+                    )
                 return cell.value
             case TableDataType.Custom.Product: {
                 let cellValues = cell.value || []
@@ -349,7 +391,14 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 return (
                     <div>
                         {
-                            cellValues.map(value => <div style={{whiteSpace: 'initial', paddingLeft: 8, textIndent: -9}}>&bull; {`${value.Name}${value.Lot ? ' - Lot ' + value.Lot : ''}${value.Amount ? ' - ' + value.Amount + value.Unit : ''}${value.Purity ? ' - Purity ' + value.Purity : ''}${value.Germination ? ' - Germination ' + value.Germination : ''}`}</div>)
+                            cellValues.map((value, prodIndex) => (
+                                <div
+                                    key={`product-item-text-row-${rowIndex}-prod-${prodIndex}`}
+                                    style={{whiteSpace: 'initial', paddingLeft: 8, textIndent: -9, marginTop: prodIndex > 0 ? 4 : 0}}
+                                >
+                                    &bull; {`${value.Name}${value.Lot ? ' - Lot ' + value.Lot : ''}${value.Amount ? ' - ' + value.Amount + value.Unit : ''}${value.Purity ? ' - Purity ' + value.Purity : ''}${value.Germination ? ' - Germination ' + value.Germination : ''}`}
+                                </div>)
+                            )
                         }
                     </div>
                 )

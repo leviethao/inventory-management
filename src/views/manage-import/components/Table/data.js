@@ -256,13 +256,19 @@ export const options = {
         {name: 'KG', code: 'KG'},
         {name: 'BAG', code: 'BAG'},
         {name: 'TON', code: 'TON'},
+    ],
+    [OptionType.ShipmentStatus]: [
+        {name: 'Preparing', code: 'Preparing'},
+        {name: 'Inprogress', code: 'Inprogress'},
+        {name: 'Done', code: 'Done'},
+        {name: 'Canceled', code: 'Canceled'},
     ]
 }
 
 export const headerList = [
     {
         title: 'DATE',
-        width: 110
+        width: 168
     },
     {
         title: 'SUPPLIER',
@@ -270,7 +276,7 @@ export const headerList = [
     },
     {
         title: 'COUNTRY',
-        width: 150
+        width: 168
     },
     {
         title: 'INVOICE',
@@ -282,15 +288,15 @@ export const headerList = [
     },
     {
         title: 'SHIPPING',
-        width: 90
+        width: 168
     },
     {
         title: 'POL-ETD',
-        width: 110
+        width: 168
     },
     {
         title: 'POL-ETA',
-        width: 110
+        width: 168
     },
     {
         title: 'B/L',
@@ -306,7 +312,7 @@ export const headerList = [
     },
     {
         title: 'SHIPMENT STATUS',
-        width: 110
+        width: 130
     },
     {
         title: 'NOTE',
@@ -339,7 +345,7 @@ export const createNewRow = ({
             value: Supplier
         },
         {
-            type: TableDataType.Select,
+            type: TableDataType.AutoComplete,
             optionType: OptionType.Country,
             value: Country
         },
@@ -371,7 +377,7 @@ export const createNewRow = ({
             // ]
         },
         {
-            type: TableDataType.Select,
+            type: TableDataType.AutoComplete,
             optionType: OptionType.Shipping,
             value: Shipping
         },
@@ -396,7 +402,8 @@ export const createNewRow = ({
             value: Payment
         },
         {
-            type: TableDataType.Text,
+            type: TableDataType.Select,
+            optionType: OptionType.ShipmentStatus,
             value: Status
         },
         {
