@@ -429,7 +429,7 @@ export const rowToObject = (row, id) => {
         Payment: row[10]?.value,
         Status: row[11]?.value,
         Note: row[12]?.value,
-        UpdateTime: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+        UpdateTime: new Date(),
         UpdateBy: '' 
     }
 

@@ -202,11 +202,11 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                 label="Select a value"
                                 size='small'
                             />}
-                            value={cell.value}
-                            onChange={(event) => {
+                            value={options[cell.optionType].find(o => o.code === cell.value)}
+                            onChange={(event, newValue) => {
                                 setData(x => {
                                     let newData = [...x]
-                                    newData[rowIndex].cells[cellIndex].value = event.target.value
+                                    newData[rowIndex].cells[cellIndex].value = newValue.code
                                     return newData
                                 })
                             }}
@@ -217,7 +217,6 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 return cell.value
             case TableDataType.Custom.Product: {
                 let cellValues = cell.value || []
-                console.log('cellvalues: ', cellValues)
                 if (data[rowIndex].editing) {
                     return (
                         <div>
@@ -266,13 +265,11 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 label="Unit"
                                                 size='small'
                                             />}
-                                            value={item.Unit}
+                                            value={options[OptionType.Unit].find(o => o.code === item.Unit)}
                                             onChange={(event, newValue) => {
                                                 setData(x => {
                                                     let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Unit = newValue.name
-                                                    console.log('value index: ', newData[rowIndex].cells[cellIndex].value[valueIndex])
-                                                    console.log('event.target.value: ', newValue.name)
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Unit = newValue.code
                                                     return newData
                                                 })
                                             }}
