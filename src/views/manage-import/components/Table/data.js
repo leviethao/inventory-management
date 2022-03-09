@@ -262,19 +262,19 @@ export const options = {
 export const headerList = [
     {
         title: 'DATE',
-        width: 250
+        width: 110
     },
     {
         title: 'SUPPLIER',
-        width: 250
+        width: 150
     },
     {
         title: 'COUNTRY',
-        width: 250
+        width: 150
     },
     {
         title: 'INVOICE',
-        width: 250
+        width: 160
     },
     {
         title: 'PRODUCT',
@@ -282,31 +282,31 @@ export const headerList = [
     },
     {
         title: 'SHIPPING',
-        width: 250
+        width: 90
     },
     {
         title: 'POL-ETD',
-        width: 250
+        width: 110
     },
     {
         title: 'POL-ETA',
-        width: 250
+        width: 110
     },
     {
         title: 'B/L',
-        width: 250
+        width: 180
     },
     {
-        title: 'FINAL DOCS (INV, BKL, DN, ...)',
-        width: 250
+        title: <div>FINAL DOCS<br/>(INV, BKL, DN, ...)</div>,
+        width: 150
     },
     {
         title: 'PAYMENT',
-        width: 250
+        width: 160
     },
     {
-        title: 'STATUS OF THE SHIPMENT',
-        width: 250
+        title: 'SHIPMENT STATUS',
+        width: 110
     },
     {
         title: 'NOTE',

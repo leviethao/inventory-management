@@ -13,6 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import EditIcon from '@mui/icons-material/Edit'
+import CancelIcon from '@mui/icons-material/Cancel'
 import IconButton from '@mui/material/IconButton';
 import moment from 'moment';
 import ImportManagementController from '../../../../controllers/import-management'
@@ -89,10 +90,19 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         }
     }, [])
 
+    const onClickCancelEditRow = useCallback((rowIndex) => {
+        return () => {
+            setData(x => {
+                let newData = [...x]
+                newData[rowIndex].editing = false
+                return newData
+            })
+        }
+    }, [])
+
     const onClickSaveRow = useCallback((rowIndex) => {
         return async () => {
             const order = rowToObject(data[rowIndex].cells, data[rowIndex].Id)
-            console.log('order: ', order)
             const result = await ImportManagementController.updateOrder(order)
             if (result.isSuccess) {
                 setData(x => {
@@ -105,14 +115,17 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     }, [data])
 
     const onClickDeleteRow = useCallback((rowIndex) => {
-        return () => {
-            setData(x => {
-                let newData = [...x]
-                newData.splice(rowIndex, 1)
-                return newData
-            })
+        return async () => {
+            const result = await ImportManagementController.deleteOrder(data[rowIndex].Id)
+            if (result.isSuccess) {
+                setData(x => {
+                    let newData = [...x]
+                    newData.splice(rowIndex, 1)
+                    return newData
+                })
+            }
         }
-    }, [])
+    }, [data])
 
     const onClickDeleteProduct = useCallback((rowIndex, cellIndex, productIndex) => {
         return () => {
@@ -333,7 +346,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                     )
                 }
 
-                return cellValues.map(value => value.name).join('\n')
+                return (
+                    <div>
+                        {
+                            cellValues.map(value => <div style={{whiteSpace: 'initial', paddingLeft: 8, textIndent: -9}}>&bull; {`${value.Name}${value.Lot ? ' - Lot ' + value.Lot : ''}${value.Amount ? ' - ' + value.Amount + value.Unit : ''}${value.Purity ? ' - Purity ' + value.Purity : ''}${value.Germination ? ' - Germination ' + value.Germination : ''}`}</div>)
+                        }
+                    </div>
+                )
             }
             default: return cell.value
         }
@@ -347,17 +366,30 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                         <div key={`table-cell-#`} className='table-cell' style={{display: 'flex', justifyContent: 'center'}}>
                             {`${rowIndex}`}
                             <div style={{display: 'flex', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
-                                <IconButton size='small' onClick={onClickDeleteRow(rowIndex)}>
-                                    <DeleteIcon />
-                                </IconButton>
+                                <Tooltip title='Delete'>
+                                    <IconButton size='small' onClick={onClickDeleteRow(rowIndex)}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Tooltip>
                                 {row.editing ? (
-                                    <IconButton size='small' onClick={onClickSaveRow(rowIndex)}>
-                                        <CheckCircleIcon />
-                                    </IconButton>
+                                    <>
+                                        <Tooltip title='Save'>
+                                            <IconButton size='small' onClick={onClickSaveRow(rowIndex)}>
+                                                <CheckCircleIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title='Cancel'>
+                                            <IconButton size='small' onClick={onClickCancelEditRow(rowIndex)}>
+                                                <CancelIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </>
                                 ) : (
-                                    <IconButton size='small' onClick={onClickEditRow(rowIndex)}>
-                                        <EditIcon />
-                                    </IconButton>
+                                    <Tooltip title='Edit'>
+                                        <IconButton size='small' onClick={onClickEditRow(rowIndex)}>
+                                            <EditIcon />
+                                        </IconButton>
+                                    </Tooltip>
                                 )}
                             </div>
                         </div>
@@ -374,7 +406,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 ))}
             </div>
         )
-    }, [data, headerList, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell])
+    }, [data, headerList, onClickCancelEditRow, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell])
 
     return (
         <div className='table-container' style={{width: width}}>

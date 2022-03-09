@@ -26,9 +26,15 @@ const getOrders = async () => {
     return res.data
 }
 
+const deleteOrder = async (orderId) => {
+    const res = await api.delete(`/order/${orderId}`)
+    return res.data
+}
+
 const ImportManagementController = {
     updateOrder,
     getOrders,
+    deleteOrder,
 }
 
 export default ImportManagementController
