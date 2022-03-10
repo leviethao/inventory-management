@@ -134,7 +134,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
             setData(x => {
                 let newData = [...x]
                 if (newData[rowIndex].cells[cellIndex].value) {
-                    newData[rowIndex].cells[cellIndex].value.splice(productIndex, 1)
+                    newData[rowIndex].cells[cellIndex].value[productIndex].Deleted = true
                 }
                 return newData
             })
@@ -275,7 +275,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 if (data[rowIndex].editing) {
                     return (
                         <div>
-                            {cellValues.map((item, valueIndex) => (
+                            {cellValues.map((item, valueIndex) => item.Deleted ? null : (
                                 <div style={{borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.16)', borderStyle: 'solid', borderRadius: 4, padding: 8, marginBottom: 8}}>
                                     <DebounceTextField
                                         value={item.Name}
@@ -379,7 +379,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                 </div>
                             ))}
     
-                            <div style={{marginTop: cellValues.length ? 24 : 0, display: 'flex', width: '100%', justifyContent: 'center'}}>
+                            <div style={{marginTop: cellValues?.filter(val => !(val.Deleted)).length ? 24 : 0, display: 'flex', width: '100%', justifyContent: 'center'}}>
                                 <Button startIcon={<AddIcon />} color='primary' variant='contained' size='small' onClick={onClickAddProduct(rowIndex, cellIndex)}>
                                     Add Product
                                 </Button>
@@ -391,7 +391,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 return (
                     <div>
                         {
-                            cellValues.map((value, prodIndex) => (
+                            cellValues.filter(val => !(val.Deleted)).map((value, prodIndex) => (
                                 <div
                                     key={`product-item-text-row-${rowIndex}-prod-${prodIndex}`}
                                     style={{whiteSpace: 'initial', paddingLeft: 8, textIndent: -9, marginTop: prodIndex > 0 ? 4 : 0}}
