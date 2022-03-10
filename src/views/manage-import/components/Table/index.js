@@ -22,6 +22,7 @@ import MenuItem from "@mui/material/MenuItem"
 
 const headerListDefault = [...headerList]
 const dataListDefault = [...dataList]
+const ICON_COLOR = '#888888'
 
 const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...props}) => {
     const [width, setWidth] = useState('100%')
@@ -417,26 +418,26 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             <div style={{display: 'flex', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
                                 <Tooltip title='Delete'>
                                     <IconButton size='small' onClick={onClickDeleteRow(rowIndex)}>
-                                        <DeleteIcon />
+                                        <DeleteIcon sx={{ color: ICON_COLOR }} />
                                     </IconButton>
                                 </Tooltip>
                                 {row.editing ? (
                                     <>
                                         <Tooltip title='Save'>
                                             <IconButton size='small' onClick={onClickSaveRow(rowIndex)}>
-                                                <CheckCircleIcon />
+                                                <CheckCircleIcon sx={{ color: ICON_COLOR }} />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title='Cancel'>
                                             <IconButton size='small' onClick={onClickCancelEditRow(rowIndex)}>
-                                                <CancelIcon />
+                                                <CancelIcon sx={{ color: ICON_COLOR }} />
                                             </IconButton>
                                         </Tooltip>
                                     </>
                                 ) : (
                                     <Tooltip title='Edit'>
                                         <IconButton size='small' onClick={onClickEditRow(rowIndex)}>
-                                            <EditIcon />
+                                            <EditIcon sx={{ color: ICON_COLOR }} />
                                         </IconButton>
                                     </Tooltip>
                                 )}
