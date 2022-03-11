@@ -168,3 +168,12 @@
 /* .table-cell .css-1pysi21-MuiFormLabel-root-MuiInputLabel-root {
     font-size: 0.875rem;
 } */
+
+.product-item:focus-within {
+    /* border-color: blue; */
+    border: solid blue 2px !important;
+}
+
+.order-ETA-notif {
+    background-image: linear-gradient(#f00, #fff);
+}

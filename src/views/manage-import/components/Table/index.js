@@ -19,6 +19,7 @@ import moment from 'moment';
 import ImportManagementController from '../../../../controllers/import-management'
 import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
+import { checkOrderETANotif } from '../../../../utils';
 
 const headerListDefault = [...headerList]
 const dataListDefault = [...dataList]
@@ -143,7 +144,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     }, [])
 
     const onClickAddProduct = useCallback((rowIndex, cellIndex) => {
-        return () => {
+        return (event) => {
             setData(x => {
                 let newData = [...x]
                 if (newData[rowIndex].cells[cellIndex].value) {
@@ -159,6 +160,15 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 }
                 return newData
             })
+
+            const productItem =  event.target?.closest(".product-item-editing")
+            const listEl = productItem?.getElementsByClassName('product-list')[0]
+            setTimeout(() => {
+                listEl.scrollTop = listEl.scrollHeight
+                const productNameEl = listEl.lastChild?.getElementsByClassName('product-name')[0]
+                const productNameInputEl = productNameEl?.getElementsByTagName('input')[0]
+                productNameInputEl?.focus()
+            }, 500)
         }
     }, [])
 
@@ -275,111 +285,113 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 let cellValues = cell.value || []
                 if (data[rowIndex].editing) {
                     return (
-                        <div>
-                            {cellValues.map((item, valueIndex) => item.Deleted ? null : (
-                                <div style={{borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.16)', borderStyle: 'solid', borderRadius: 4, padding: 8, marginBottom: 8}}>
-                                    <DebounceTextField
-                                        value={item.Name}
-                                        label='Product name'
-                                        style={{width: '100%'}}
-                                        onChange={(newValue) => {
-                                            setData(x => {
-                                                let newData = [...x]
-                                                newData[rowIndex].cells[cellIndex].value[valueIndex].Name = newValue
-                                                return newData
-                                            })
-                                        }}
-                                    />
-                                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
-                                        <DebounceTextField 
-                                            type='number' 
-                                            style={{width: '48%'}} 
-                                            label='Amount' 
-                                            value={item.Amount}
-                                            onChange={(newValue) => {
-                                                setData(x => {
-                                                    let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Amount = newValue
-                                                    return newData
-                                                })
-                                            }} 
-                                        />
-                                        <Autocomplete
-                                            style={{width: '48%'}}
-                                            options={options[OptionType.Unit]}
-                                            getOptionLabel={option => option.name}
-                                            renderOption={(props, option) => {
-                                                return (
-                                                <span {...props} style={{ color: '#000' }}>
-                                                    {option.name}
-                                                </span>
-                                                );
-                                            }}
-                                            sx={{ width: 200 }}
-                                            renderInput={(params) => <TextField
-                                                {...params}
-                                                label="Unit"
-                                                size='small'
-                                            />}
-                                            value={options[OptionType.Unit].find(o => o.code === item.Unit)}
-                                            onChange={(event, newValue) => {
-                                                setData(x => {
-                                                    let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Unit = newValue.code
-                                                    return newData
-                                                })
-                                            }}
-                                        />
-                                    </div>
-                                    
-                                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
-                                        <DebounceTextField 
-                                            type='number' 
-                                            style={{width: '48%'}} 
-                                            label='Purity'
-                                            value={item.Purity}
-                                            onChange={(newValue) => {
-                                                setData(x => {
-                                                    let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Purity = newValue
-                                                    return newData
-                                                })
-                                            }}
-                                        />
-                                        <DebounceTextField 
-                                            type='number'
-                                            style={{width: '48%', fontSize: 12}} 
-                                            label='Germination'
-                                            value={item.Germination}
-                                            onChange={(newValue) => {
-                                                setData(x => {
-                                                    let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Germination = newValue
-                                                    return newData
-                                                })
-                                            }}
-                                        />
-                                    </div>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
+                        <div className='product-item-editing'>
+                            <div style={{maxHeight: 300, overflowY: 'scroll'}} className='product-list'>
+                                {cellValues.map((item, valueIndex) => item.Deleted ? null : (
+                                    <div style={{borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.16)', borderStyle: 'solid', borderRadius: 4, padding: 8, marginBottom: 8}} className='product-item'>
                                         <DebounceTextField
-                                            value={item.Lot} 
-                                            label='Lot' 
-                                            style={{width: '48%'}}
+                                            className='product-name'
+                                            value={item.Name}
+                                            label='Product name'
+                                            style={{width: '100%'}}
                                             onChange={(newValue) => {
                                                 setData(x => {
                                                     let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Lot = newValue
+                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Name = newValue
                                                     return newData
                                                 })
                                             }}
                                         />
-                                        <Button startIcon={<RemoveIcon />} color='error' variant='contained' size='small' onClick={onClickDeleteProduct(rowIndex, cellIndex, valueIndex)}>
-                                            Remove
-                                        </Button>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
+                                            <DebounceTextField 
+                                                type='number' 
+                                                style={{width: '48%'}} 
+                                                label='Amount' 
+                                                value={item.Amount}
+                                                onChange={(newValue) => {
+                                                    setData(x => {
+                                                        let newData = [...x]
+                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Amount = newValue
+                                                        return newData
+                                                    })
+                                                }} 
+                                            />
+                                            <Autocomplete
+                                                style={{width: '48%'}}
+                                                options={options[OptionType.Unit]}
+                                                getOptionLabel={option => option.name}
+                                                renderOption={(props, option) => {
+                                                    return (
+                                                    <span {...props} style={{ color: '#000' }}>
+                                                        {option.name}
+                                                    </span>
+                                                    );
+                                                }}
+                                                sx={{ width: 200 }}
+                                                renderInput={(params) => <TextField
+                                                    {...params}
+                                                    label="Unit"
+                                                    size='small'
+                                                />}
+                                                value={options[OptionType.Unit].find(o => o.code === item.Unit)}
+                                                onChange={(event, newValue) => {
+                                                    setData(x => {
+                                                        let newData = [...x]
+                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Unit = newValue.code
+                                                        return newData
+                                                    })
+                                                }}
+                                            />
+                                        </div>
+                                        
+                                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
+                                            <DebounceTextField 
+                                                type='number' 
+                                                style={{width: '48%'}} 
+                                                label='Purity'
+                                                value={item.Purity}
+                                                onChange={(newValue) => {
+                                                    setData(x => {
+                                                        let newData = [...x]
+                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Purity = newValue
+                                                        return newData
+                                                    })
+                                                }}
+                                            />
+                                            <DebounceTextField 
+                                                type='number'
+                                                style={{width: '48%', fontSize: 12}} 
+                                                label='Germination'
+                                                value={item.Germination}
+                                                onChange={(newValue) => {
+                                                    setData(x => {
+                                                        let newData = [...x]
+                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Germination = newValue
+                                                        return newData
+                                                    })
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 8}}>
+                                            <DebounceTextField
+                                                value={item.Lot} 
+                                                label='Lot' 
+                                                style={{width: '48%'}}
+                                                onChange={(newValue) => {
+                                                    setData(x => {
+                                                        let newData = [...x]
+                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Lot = newValue
+                                                        return newData
+                                                    })
+                                                }}
+                                            />
+                                            <Button startIcon={<RemoveIcon />} color='error' variant='contained' size='small' onClick={onClickDeleteProduct(rowIndex, cellIndex, valueIndex)}>
+                                                Remove
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-    
+                                ))}
+                            </div>
                             <div style={{marginTop: cellValues?.filter(val => !(val.Deleted)).length ? 24 : 0, display: 'flex', width: '100%', justifyContent: 'center'}}>
                                 <Button startIcon={<AddIcon />} color='primary' variant='contained' size='small' onClick={onClickAddProduct(rowIndex, cellIndex)}>
                                     Add Product
@@ -390,7 +402,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 }
 
                 return (
-                    <div>
+                    <div style={{maxHeight: 200, overflowY: 'scroll'}}>
                         {
                             cellValues.filter(val => !(val.Deleted)).map((value, prodIndex) => (
                                 <div
@@ -412,7 +424,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         return (
             <div className='table-content'>
                 {data.map((row, rowIndex) => (
-                    <div key={`table-row-${rowIndex}`} className='table-row'>
+                    <div key={`table-row-${rowIndex}`} className={`table-row ${checkOrderETANotif(row) ? 'order-ETA-notif' : ''}`}>
                         <div key={`table-cell-#`} className='table-cell' style={{display: 'flex', justifyContent: 'center'}}>
                             {`${rowIndex}`}
                             <div style={{display: 'flex', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
