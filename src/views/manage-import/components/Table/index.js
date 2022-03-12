@@ -20,6 +20,7 @@ import ImportManagementController from '../../../../controllers/import-managemen
 import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
 import { checkOrderETANotif } from '../../../../utils';
+const { v4: uuidv4 } = require('uuid')
 
 const headerListDefault = [...headerList]
 const dataListDefault = [...dataList]
@@ -30,10 +31,46 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     const headerRef = useRef()
     const [data, setData] = useState(dataList)
 
+    // const setData = useCallback((_data) => {
+    //     if (typeof _data == 'function') {
+    //         setDataState(x => {
+    //             const newData = _data(x)
+    //             let notDoneOrderList = []
+    //             let doneOrderList = []
+    //             for (let row of newData) {
+    //                 if (row.cells[11].value == 'Done' && !(row.editing)) {
+    //                     doneOrderList.push(row)
+    //                 } else {
+    //                     notDoneOrderList.push(row)
+    //                 }
+    //             }
+    //             const sorted = [...notDoneOrderList, ...doneOrderList]
+    //             return sorted
+    //         })
+    //     } else {
+    //         setDataState(x => {
+    //             let notDoneOrderList = []
+    //             let doneOrderList = []
+    //             for (let row of _data) {
+    //                 if (row.cells[11].value == 'Done' && !(row.editing)) {
+    //                     doneOrderList.push(row)
+    //                 } else {
+    //                     notDoneOrderList.push(row)
+    //                 }
+    //             }
+    //             const sorted = [...notDoneOrderList, ...doneOrderList]
+    //             return sorted
+    //         })
+    //     }
+    // }, [setDataState])
+
     useEffect(() => {
-        // const mappedData = dataList.map(cells => ({cells: cells, editing: false}))
-        // setData(mappedData)
-        setData(dataList)
+        const mappedData = dataList.map(item => {
+            item.tempId = item.Id || uuidv4()
+            return item
+        })
+        setData(mappedData)
+        // setData(dataList)
     }, [dataList])
 
     useEffect(() => {
@@ -55,7 +92,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     const onClickCreateNewRow = useCallback(() => {
         setData(x => {
             let newData = [...x]
-            newData.unshift({cells: createNewRow({}), editing: true})
+            newData.unshift({cells: createNewRow({}), editing: true, tempId: uuidv4()})
             return newData
         })
     }, [])
@@ -84,46 +121,52 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         )
     }, [headerList])
 
-    const onClickEditRow = useCallback((rowIndex) => {
+    const onClickEditRow = useCallback((rowTempId) => {
         return () => {
             setData(x => {
                 let newData = [...x]
-                newData[rowIndex].editing = true
+                let row = newData.find(row => row.tempId === rowTempId)
+                if (row) row.editing = true
                 return newData
             })
         }
     }, [])
 
-    const onClickCancelEditRow = useCallback((rowIndex) => {
+    const onClickCancelEditRow = useCallback((rowTempId) => {
         return () => {
             setData(x => {
                 let newData = [...x]
-                newData[rowIndex].editing = false
+                let row = newData.find(row => row.tempId === rowTempId)
+                if (row) row.editing = false
                 return newData
             })
         }
     }, [])
 
-    const onClickSaveRow = useCallback((rowIndex) => {
+    const onClickSaveRow = useCallback((rowTempId) => {
         return async () => {
-            const order = rowToObject(data[rowIndex].cells, data[rowIndex].Id)
+            let row = data.find(r => r.tempId === rowTempId)
+            const order = rowToObject(row.cells, row.Id)
             const result = await ImportManagementController.updateOrder(order)
             if (result.isSuccess) {
                 setData(x => {
                     let newData = [...x]
-                    newData[rowIndex].editing = false
+                    let row = newData.find(row => row.tempId === rowTempId)
+                    row.editing = false
                     return newData
                 })
             }
         }
     }, [data])
 
-    const onClickDeleteRow = useCallback((rowIndex) => {
+    const onClickDeleteRow = useCallback((rowTempId) => {
         return async () => {
-            const result = await ImportManagementController.deleteOrder(data[rowIndex].Id)
+            let row = data.find(row => row.tempId === rowTempId)
+            const result = await ImportManagementController.deleteOrder(row.Id)
             if (result.isSuccess) {
                 setData(x => {
                     let newData = [...x]
+                    let rowIndex = newData.findIndex(row => row.tempId === rowTempId)
                     newData.splice(rowIndex, 1)
                     return newData
                 })
@@ -131,33 +174,35 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         }
     }, [data])
 
-    const onClickDeleteProduct = useCallback((rowIndex, cellIndex, productIndex) => {
+    const onClickDeleteProduct = useCallback((rowTempId, cellIndex, productIndex) => {
         return () => {
             setData(x => {
                 let newData = [...x]
-                if (newData[rowIndex].cells[cellIndex].value) {
-                    newData[rowIndex].cells[cellIndex].value[productIndex].Deleted = true
+                let row = newData.find(row => row.tempId === rowTempId)
+                if (row.cells[cellIndex].value) {
+                    row.cells[cellIndex].value[productIndex].Deleted = true
                 }
                 return newData
             })
         }
     }, [])
 
-    const onClickAddProduct = useCallback((rowIndex, cellIndex) => {
+    const onClickAddProduct = useCallback((rowTempId, cellIndex) => {
         return (event) => {
             setData(x => {
                 let newData = [...x]
-                if (newData[rowIndex].cells[cellIndex].value) {
-                    let productItem = {
-                        Name: '',
-                        Amount: 0,
-                        Unit: 'KG',
-                        Purity: 0,
-                        Germination: 0,
-                        Lot: ''
-                    }
-                    newData[rowIndex].cells[cellIndex].value.push(productItem)
+                let row = newData.find(row => row.tempId === rowTempId)
+                row.cells[cellIndex].value = row.cells[cellIndex].value || []
+                let productItem = {
+                    Name: '',
+                    Amount: 0,
+                    Unit: 'KG',
+                    Purity: 0,
+                    Germination: 0,
+                    Lot: ''
                 }
+                row.cells[cellIndex].value.push(productItem)
+                
                 return newData
             })
 
@@ -172,12 +217,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         }
     }, [])
 
-    const renderCell = useCallback((rowIndex, cellIndex) => {
-        const cell = data[rowIndex].cells[cellIndex]
+    const renderCell = useCallback((rowTempId, cellIndex) => {
+        let row = data.find(row => row.tempId === rowTempId)
+        const cell = row.cells[cellIndex]
 
         switch (cell.type) {
             case TableDataType.Date:
-                if (data[rowIndex].editing) {
+                if (row.editing) {
                     return (
                         <DatePicker
                             label="Select a date"
@@ -185,7 +231,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             onChange={(newValue) => {
                                 setData(x => {
                                     let newData = [...x]
-                                    newData[rowIndex].cells[cellIndex].value = newValue
+                                    let row = newData.find(row => row.tempId === rowTempId)
+                                    row.cells[cellIndex].value = newValue
                                     return newData
                                 })
                             }}
@@ -196,12 +243,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
 
                 return moment(cell.value).format('MM/DD/YYYY')
             case TableDataType.Text:
-                if (data[rowIndex].editing) {
+                if (row.editing) {
                     return (
                         <DebounceTextareaAutosize value={cell.value} onChange={(value) => {
                             setData(x => {
                                 let newData = [...x]
-                                newData[rowIndex].cells[cellIndex].value = value
+                                let row = newData.find(row => row.tempId === rowTempId)
+                                row.cells[cellIndex].value = value
                                 return newData
                             })
                         }} />
@@ -210,7 +258,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
 
                 return cell.value
             case TableDataType.AutoComplete:
-                if (data[rowIndex].editing) {
+                if (row.editing) {
                     return (
                         <Autocomplete
                             options={options[cell.optionType]}
@@ -232,7 +280,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             onChange={(event, newValue) => {
                                 setData(x => {
                                     let newData = [...x]
-                                    newData[rowIndex].cells[cellIndex].value = newValue.code
+                                    let row = newData.find(row => row.tempId === rowTempId)
+                                    row.cells[cellIndex].value = newValue.code
                                     return newData
                                 })
                             }}
@@ -243,7 +292,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 return cell.value
 
             case TableDataType.Select:
-                if (data[rowIndex].editing) {
+                if (row.editing) {
                     return (
                         <Select
                             value={cell.value}
@@ -252,13 +301,14 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             onChange={(event) => {
                                 setData(x => {
                                     let newData = [...x]
-                                    newData[rowIndex].cells[cellIndex].value = event.target.value
+                                    let row = newData.find(row => row.tempId === rowTempId)
+                                    row.cells[cellIndex].value = event.target.value
                                     return newData
                                 })
                             }}
                         >
-                            {options[cell.optionType].map(o => (
-                                <MenuItem value={o.code}>{o.name}</MenuItem>
+                            {options[cell.optionType].map((o, i) => (
+                                <MenuItem key={`select-item-${i}`} value={o.code}>{o.name}</MenuItem>
                             ))}
                         </Select>
                     )
@@ -283,12 +333,12 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 return cell.value
             case TableDataType.Custom.Product: {
                 let cellValues = cell.value || []
-                if (data[rowIndex].editing) {
+                if (row.editing) {
                     return (
                         <div className='product-item-editing'>
                             <div style={{maxHeight: 300, overflowY: 'scroll'}} className='product-list'>
                                 {cellValues.map((item, valueIndex) => item.Deleted ? null : (
-                                    <div style={{borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.16)', borderStyle: 'solid', borderRadius: 4, padding: 8, marginBottom: 8}} className='product-item'>
+                                    <div key={`product-item-${row.tempId}-${valueIndex}`} style={{borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.16)', borderStyle: 'solid', borderRadius: 4, padding: 8, marginBottom: 8}} className='product-item'>
                                         <DebounceTextField
                                             className='product-name'
                                             value={item.Name}
@@ -297,7 +347,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                             onChange={(newValue) => {
                                                 setData(x => {
                                                     let newData = [...x]
-                                                    newData[rowIndex].cells[cellIndex].value[valueIndex].Name = newValue
+                                                    let row = newData.find(row => row.tempId === rowTempId)
+                                                    row.cells[cellIndex].value[valueIndex].Name = newValue
                                                     return newData
                                                 })
                                             }}
@@ -311,7 +362,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 onChange={(newValue) => {
                                                     setData(x => {
                                                         let newData = [...x]
-                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Amount = newValue
+                                                        let row = newData.find(row => row.tempId === rowTempId)
+                                                        row.cells[cellIndex].value[valueIndex].Amount = newValue
                                                         return newData
                                                     })
                                                 }} 
@@ -337,7 +389,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 onChange={(event, newValue) => {
                                                     setData(x => {
                                                         let newData = [...x]
-                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Unit = newValue.code
+                                                        let row = newData.find(row => row.tempId === rowTempId)
+                                                        row.cells[cellIndex].value[valueIndex].Unit = newValue.code
                                                         return newData
                                                     })
                                                 }}
@@ -353,7 +406,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 onChange={(newValue) => {
                                                     setData(x => {
                                                         let newData = [...x]
-                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Purity = newValue
+                                                        let row = newData.find(row => row.tempId === rowTempId)
+                                                        row.cells[cellIndex].value[valueIndex].Purity = newValue
                                                         return newData
                                                     })
                                                 }}
@@ -366,7 +420,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 onChange={(newValue) => {
                                                     setData(x => {
                                                         let newData = [...x]
-                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Germination = newValue
+                                                        let row = newData.find(row => row.tempId === rowTempId)
+                                                        row.cells[cellIndex].value[valueIndex].Germination = newValue
                                                         return newData
                                                     })
                                                 }}
@@ -380,12 +435,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                                 onChange={(newValue) => {
                                                     setData(x => {
                                                         let newData = [...x]
-                                                        newData[rowIndex].cells[cellIndex].value[valueIndex].Lot = newValue
+                                                        let row = newData.find(row => row.tempId === rowTempId)
+                                                        row.cells[cellIndex].value[valueIndex].Lot = newValue
                                                         return newData
                                                     })
                                                 }}
                                             />
-                                            <Button startIcon={<RemoveIcon />} color='error' variant='contained' size='small' onClick={onClickDeleteProduct(rowIndex, cellIndex, valueIndex)}>
+                                            <Button startIcon={<RemoveIcon />} color='error' variant='contained' size='small' onClick={onClickDeleteProduct(row.tempId, cellIndex, valueIndex)}>
                                                 Remove
                                             </Button>
                                         </div>
@@ -393,7 +449,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                 ))}
                             </div>
                             <div style={{marginTop: cellValues?.filter(val => !(val.Deleted)).length ? 24 : 0, display: 'flex', width: '100%', justifyContent: 'center'}}>
-                                <Button startIcon={<AddIcon />} color='primary' variant='contained' size='small' onClick={onClickAddProduct(rowIndex, cellIndex)}>
+                                <Button startIcon={<AddIcon />} color='primary' variant='contained' size='small' onClick={onClickAddProduct(row.tempId, cellIndex)}>
                                     Add Product
                                 </Button>
                             </div>
@@ -406,7 +462,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                         {
                             cellValues.filter(val => !(val.Deleted)).map((value, prodIndex) => (
                                 <div
-                                    key={`product-item-text-row-${rowIndex}-prod-${prodIndex}`}
+                                    key={`product-item-text-row-${row.tempId}-prod-${prodIndex}`}
                                     style={{whiteSpace: 'initial', paddingLeft: 8, textIndent: -9, marginTop: prodIndex > 0 ? 4 : 0}}
                                 >
                                     &bull; {`${value.Name}${value.Lot ? ' - Lot ' + value.Lot : ''}${value.Amount ? ' - ' + value.Amount + value.Unit : ''}${value.Purity ? ' - Purity ' + value.Purity : ''}${value.Germination ? ' - Germination ' + value.Germination : ''}`}
@@ -429,26 +485,26 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             {`${rowIndex}`}
                             <div style={{display: 'flex', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
                                 <Tooltip title='Delete'>
-                                    <IconButton size='small' onClick={onClickDeleteRow(rowIndex)}>
+                                    <IconButton size='small' onClick={onClickDeleteRow(row.tempId)}>
                                         <DeleteIcon sx={{ color: ICON_COLOR }} />
                                     </IconButton>
                                 </Tooltip>
                                 {row.editing ? (
                                     <>
                                         <Tooltip title='Save'>
-                                            <IconButton size='small' onClick={onClickSaveRow(rowIndex)}>
+                                            <IconButton size='small' onClick={onClickSaveRow(row.tempId)}>
                                                 <CheckCircleIcon sx={{ color: ICON_COLOR }} />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title='Cancel'>
-                                            <IconButton size='small' onClick={onClickCancelEditRow(rowIndex)}>
+                                            <IconButton size='small' onClick={onClickCancelEditRow(row.tempId)}>
                                                 <CancelIcon sx={{ color: ICON_COLOR }} />
                                             </IconButton>
                                         </Tooltip>
                                     </>
                                 ) : (
                                     <Tooltip title='Edit'>
-                                        <IconButton size='small' onClick={onClickEditRow(rowIndex)}>
+                                        <IconButton size='small' onClick={onClickEditRow(row.tempId)}>
                                             <EditIcon sx={{ color: ICON_COLOR }} />
                                         </IconButton>
                                     </Tooltip>
@@ -461,7 +517,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                 className='table-cell'
                                 style={{width: headerList[cellIndex].width}}
                             >
-                                {renderCell(rowIndex, cellIndex)}
+                                {renderCell(row.tempId, cellIndex)}
                             </div>
                         ))}
                     </div>
