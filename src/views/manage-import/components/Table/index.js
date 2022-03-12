@@ -20,6 +20,7 @@ import ImportManagementController from '../../../../controllers/import-managemen
 import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
 import { checkOrderETANotif } from '../../../../utils';
+import _ from 'lodash'
 const { v4: uuidv4 } = require('uuid')
 
 const headerListDefault = [...headerList]
@@ -31,47 +32,31 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     const headerRef = useRef()
     const [data, setData] = useState(dataList)
 
-    // const setData = useCallback((_data) => {
-    //     if (typeof _data == 'function') {
-    //         setDataState(x => {
-    //             const newData = _data(x)
-    //             let notDoneOrderList = []
-    //             let doneOrderList = []
-    //             for (let row of newData) {
-    //                 if (row.cells[11].value == 'Done' && !(row.editing)) {
-    //                     doneOrderList.push(row)
-    //                 } else {
-    //                     notDoneOrderList.push(row)
-    //                 }
-    //             }
-    //             const sorted = [...notDoneOrderList, ...doneOrderList]
-    //             return sorted
-    //         })
-    //     } else {
-    //         setDataState(x => {
-    //             let notDoneOrderList = []
-    //             let doneOrderList = []
-    //             for (let row of _data) {
-    //                 if (row.cells[11].value == 'Done' && !(row.editing)) {
-    //                     doneOrderList.push(row)
-    //                 } else {
-    //                     notDoneOrderList.push(row)
-    //                 }
-    //             }
-    //             const sorted = [...notDoneOrderList, ...doneOrderList]
-    //             return sorted
-    //         })
-    //     }
-    // }, [setDataState])
+    const moveDoneRowsToEndOfList = useCallback((newData) => {
+        let notDoneOrderList = [...newData]
+        let doneOrderList = []
+        for (let i = newData.length - 1; i >= 0; i--) {
+            let row = newData[i]
+            if (row.cells[11].value == 'Done') {
+                doneOrderList.unshift(row)
+                notDoneOrderList.splice(i, 1)
+            }
+        }
+
+        const sorted = [...notDoneOrderList, ...doneOrderList]
+        return sorted
+    }, [])
 
     useEffect(() => {
-        const mappedData = dataList.map(item => {
+        const mappedData = _.cloneDeep(dataList).map(item => {
             item.tempId = item.Id || uuidv4()
             return item
         })
-        setData(mappedData)
-        // setData(dataList)
-    }, [dataList])
+
+        const sorted = moveDoneRowsToEndOfList(mappedData)
+
+        setData(sorted)
+    }, [dataList, moveDoneRowsToEndOfList])
 
     useEffect(() => {
         const handleResize = () => {
@@ -136,12 +121,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         return () => {
             setData(x => {
                 let newData = [...x]
-                let row = newData.find(row => row.tempId === rowTempId)
-                if (row) row.editing = false
+                let rowIndex = newData.findIndex(row => row.tempId === rowTempId)
+                const oldRow = dataList.find(row => row.Id == newData[rowIndex].Id)
+                newData[rowIndex] = _.cloneDeep(oldRow)
                 return newData
             })
         }
-    }, [])
+    }, [dataList])
 
     const onClickSaveRow = useCallback((rowTempId) => {
         return async () => {
@@ -153,11 +139,12 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                     let newData = [...x]
                     let row = newData.find(row => row.tempId === rowTempId)
                     row.editing = false
-                    return newData
+                    const sorted = moveDoneRowsToEndOfList(newData)
+                    return sorted
                 })
             }
         }
-    }, [data])
+    }, [data, moveDoneRowsToEndOfList])
 
     const onClickDeleteRow = useCallback((rowTempId) => {
         return async () => {
