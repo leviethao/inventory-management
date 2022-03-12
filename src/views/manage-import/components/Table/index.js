@@ -232,14 +232,16 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
             case TableDataType.Text:
                 if (row.editing) {
                     return (
-                        <DebounceTextareaAutosize value={cell.value} onChange={(value) => {
-                            setData(x => {
-                                let newData = [...x]
-                                let row = newData.find(row => row.tempId === rowTempId)
-                                row.cells[cellIndex].value = value
-                                return newData
-                            })
-                        }} />
+                        <div style={{display: 'flex'}}>
+                            <DebounceTextareaAutosize value={cell.value} onChange={(value) => {
+                                setData(x => {
+                                    let newData = [...x]
+                                    let row = newData.find(row => row.tempId === rowTempId)
+                                    row.cells[cellIndex].value = value
+                                    return newData
+                                })
+                            }} />
+                        </div>
                     )
                 }
 
@@ -257,7 +259,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                                   </span>
                                 );
                               }}
-                            sx={{ width: 200 }}
+                            sx={{ width: '100%' }}
                             renderInput={(params) => <TextField
                                 {...params}
                                 label="Select a value"
@@ -284,7 +286,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                         <Select
                             value={cell.value}
                             size={'small'}
-                            sx={{ width: 200 }}
+                            sx={{ width: '100%' }}
                             onChange={(event) => {
                                 setData(x => {
                                     let newData = [...x]

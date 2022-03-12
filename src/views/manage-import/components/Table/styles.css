@@ -80,8 +80,8 @@
     padding: 12px 8px 12px 8px;
     flex-shrink: 0;
     flex-grow: 0;
-    display: flex;
-    word-break:break-all;
+    /* display: flex; */
+    /* word-break:break-all; */
 }
 
 /* .table-cell .css-1pysi21-MuiFormLabel-root-MuiInputLabel-root {

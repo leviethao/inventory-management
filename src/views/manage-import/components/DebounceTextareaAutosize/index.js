@@ -24,7 +24,7 @@ const DebounceTextareaAutosize = ({value = '', onChange = (text) => {}}) => {
             aria-label="empty textarea"
             placeholder="Empty"
             onChange={onChangeText}
-            style={{ width: 200 }}
+            style={{ width: '100%' }}
         />
     )
 }
