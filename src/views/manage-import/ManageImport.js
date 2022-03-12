@@ -58,7 +58,7 @@ export default function ManageImport() {
           <Examples />
           <Download /> */}
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

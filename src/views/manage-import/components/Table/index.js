@@ -48,6 +48,23 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     }, [])
 
     useEffect(() => {
+        function myFunction() {
+            var sticky = headerRef.current.getBoundingClientRect().top;
+            // var leftInit = headerRef.current.getBoundingClientRect().left;
+            if (window.pageYOffset > sticky) {
+                headerRef.current.classList.add("sticky");
+                headerRef.current.style.left = `${0 - window.pageXOffset}px`
+            } else {
+                headerRef.current.classList.remove("sticky");
+            }
+        }
+        window.addEventListener('scroll', myFunction)
+        return () => {
+            window.removeEventListener('scroll', myFunction)
+        }
+    }, [])
+
+    useEffect(() => {
         const mappedData = _.cloneDeep(dataList).map(item => {
             item.tempId = item.Id || uuidv4()
             return item
@@ -447,7 +464,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 }
 
                 return (
-                    <div style={{maxHeight: 200, overflowY: 'scroll'}}>
+                    <div>
                         {
                             cellValues.filter(val => !(val.Deleted)).map((value, prodIndex) => (
                                 <div
@@ -474,27 +491,27 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             {`${rowIndex}`}
                             <div style={{display: 'flex', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
                                 <Tooltip title='Delete'>
-                                    <IconButton size='small' onClick={onClickDeleteRow(row.tempId)}>
-                                        <DeleteIcon sx={{ color: ICON_COLOR }} />
+                                    <IconButton sx={{width: 32, height: 32}} onClick={onClickDeleteRow(row.tempId)}>
+                                        <DeleteIcon sx={{ color: ICON_COLOR, width: 16, height: 16}} />
                                     </IconButton>
                                 </Tooltip>
                                 {row.editing ? (
                                     <>
                                         <Tooltip title='Save'>
-                                            <IconButton size='small' onClick={onClickSaveRow(row.tempId)}>
-                                                <CheckCircleIcon sx={{ color: ICON_COLOR }} />
+                                            <IconButton sx={{width: 32, height: 32}} onClick={onClickSaveRow(row.tempId)}>
+                                                <CheckCircleIcon sx={{ color: ICON_COLOR, width: 16, height: 16 }} />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title='Cancel'>
-                                            <IconButton size='small' onClick={onClickCancelEditRow(row.tempId)}>
-                                                <CancelIcon sx={{ color: ICON_COLOR }} />
+                                            <IconButton sx={{width: 32, height: 32}} onClick={onClickCancelEditRow(row.tempId)}>
+                                                <CancelIcon sx={{ color: ICON_COLOR, width: 16, height: 16 }} />
                                             </IconButton>
                                         </Tooltip>
                                     </>
                                 ) : (
                                     <Tooltip title='Edit'>
-                                        <IconButton size='small' onClick={onClickEditRow(row.tempId)}>
-                                            <EditIcon sx={{ color: ICON_COLOR }} />
+                                        <IconButton sx={{width: 32, height: 32}} onClick={onClickEditRow(row.tempId)}>
+                                            <EditIcon sx={{ color: ICON_COLOR, width: 16, height: 16 }} />
                                         </IconButton>
                                     </Tooltip>
                                 )}
@@ -504,7 +521,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             <div
                                 key={`table-cell-${cellIndex}`}
                                 className='table-cell wrap'
-                                style={{width: headerList[cellIndex].width}}
+                                style={{width: headerList[cellIndex].width, maxHeight: row.editing ? 400 : 200, overflowY: 'scroll'}}
                             >
                                 {renderCell(row.tempId, cellIndex)}
                             </div>

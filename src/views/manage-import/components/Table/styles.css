@@ -1,7 +1,7 @@
 .table-container {
     overflow-x: scroll;
     width: 100%; /*this value will change dynamic in js code*/
-    margin-top: 100px;
+    /* margin-top: 100px; */
 }
 .table-header {
     /* background-color: red; */
@@ -185,4 +185,11 @@
     white-space: -pre-wrap;     /* Opera <7 */   
     white-space: -o-pre-wrap;   /* Opera 7 */    
     word-wrap: break-word;      /* IE */
+ }
+
+ .sticky {
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    /* width: 100%; */
  }

@@ -40,12 +40,12 @@ export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
-  React.useEffect(() => {
-    window.addEventListener("scroll", changeColor);
-    return function cleanup() {
-      window.removeEventListener("scroll", changeColor);
-    };
-  },[]);
+  // React.useEffect(() => {
+  //   window.addEventListener("scroll", changeColor);
+  //   return function cleanup() {
+  //     window.removeEventListener("scroll", changeColor);
+  //   };
+  // },[]);
   const changeColor = () => {
     if (
       document.documentElement.scrollTop > 99 ||
@@ -75,11 +75,11 @@ export default function IndexNavbar() {
       .scrollIntoView({ behavior: "smooth" });
   };
   return (
-    <Navbar className={"fixed-top " + color} color-on-scroll="100" expand="lg">
+    <Navbar className={color} color-on-scroll="100" expand="lg">
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" tag={Link} id="navbar-brand">
-            <span>Green • Import Management</span>
+            <span>GREEN • IMPORT FOLLOW UP</span>
           </NavbarBrand>
           <UncontrolledTooltip placement="bottom" target="navbar-brand">
             Designed and Coded by SuHao
@@ -101,7 +101,7 @@ export default function IndexNavbar() {
           onExiting={onCollapseExiting}
           onExited={onCollapseExited}
         >
-          <div className="navbar-collapse-header">
+          {/* <div className="navbar-collapse-header">
             <Row>
               <Col className="collapse-brand" xs="6">
                 <a href="#pablo" onClick={(e) => e.preventDefault()}>
@@ -118,8 +118,8 @@ export default function IndexNavbar() {
                 </button>
               </Col>
             </Row>
-          </div>
-          <Nav navbar>
+          </div> */}
+          {/* <Nav navbar>
             <NavItem className="p-0">
               <NavLink
                 data-placement="bottom"
@@ -206,7 +206,7 @@ export default function IndexNavbar() {
                 <i className="tim-icons icon-cloud-download-93" /> Download
               </Button>
             </NavItem>
-          </Nav>
+          </Nav> */}
         </Collapse>
       </Container>
     </Navbar>
