@@ -81,6 +81,7 @@
     flex-shrink: 0;
     flex-grow: 0;
     display: flex;
+    word-break:break-all;
 }
 
 /* .table-cell .css-1pysi21-MuiFormLabel-root-MuiInputLabel-root {
@@ -177,3 +178,11 @@
 .order-ETA-notif {
     background-image: linear-gradient(#f0adad, #fff);
 }
+
+.wrap { 
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+ }

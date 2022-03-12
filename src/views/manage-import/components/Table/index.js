@@ -501,7 +501,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                         {row?.cells?.map((cell, cellIndex) => (
                             <div
                                 key={`table-cell-${cellIndex}`}
-                                className='table-cell'
+                                className='table-cell wrap'
                                 style={{width: headerList[cellIndex].width}}
                             >
                                 {renderCell(row.tempId, cellIndex)}
