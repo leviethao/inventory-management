@@ -21,6 +21,7 @@ import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
 import { checkOrderETANotif } from '../../../../utils';
 import _ from 'lodash'
+import SearchBar from '../SearchBar';
 const { v4: uuidv4 } = require('uuid')
 
 const headerListDefault = [...headerList]
@@ -31,6 +32,8 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     const [width, setWidth] = useState('100%')
     const headerRef = useRef()
     const [data, setData] = useState(dataList)
+    const [dataShow, setDataShow] = useState(dataList)
+    const [searchText, setSearchText] = useState('')
 
     const moveDoneRowsToEndOfList = useCallback((newData) => {
         let notDoneOrderList = [...newData]
@@ -73,6 +76,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
         const sorted = moveDoneRowsToEndOfList(mappedData)
 
         setData(sorted)
+        setDataShow(sorted)
     }, [dataList, moveDoneRowsToEndOfList])
 
     useEffect(() => {
@@ -485,7 +489,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
     const renderDataList = useCallback(() => {
         return (
             <div className='table-content'>
-                {data.map((row, rowIndex) => (
+                {dataShow.map((row, rowIndex) => (
                     <div key={`table-row-${rowIndex}`} className={`table-row ${checkOrderETANotif(row) ? 'order-ETA-notif' : ''}`}>
                         <div key={`table-cell-#`} className='table-cell' style={{display: 'flex', justifyContent: 'center'}}>
                             {`${rowIndex}`}
@@ -530,10 +534,30 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 ))}
             </div>
         )
-    }, [data, headerList, onClickCancelEditRow, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell])
+    }, [dataShow, headerList, onClickCancelEditRow, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell])
+
+    useEffect(() => {
+        setDataShow(x => {
+            let listToShow = []
+            if (searchText?.trim()) {
+                for (let row of data) {
+                    const supplier = (row.cells[1]?.value || '').trim().toLowerCase()
+                    const value = (searchText || '').trim().toLowerCase()
+                    if (supplier.search(value) >= 0) {
+                        listToShow.push(row)
+                    }
+                }
+            } else {
+                listToShow = [...data]
+            }
+
+            return listToShow
+        })
+    }, [data, searchText])
 
     return (
         <div className='table-container' style={{width: width}}>
+            <SearchBar onSearch={setSearchText} />
             {renderHeaderList()}
             {renderDataList()}
             <Tooltip title='Create new Order'>
