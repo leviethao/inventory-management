@@ -185,11 +185,20 @@
     white-space: -pre-wrap;     /* Opera <7 */   
     white-space: -o-pre-wrap;   /* Opera 7 */    
     word-wrap: break-word;      /* IE */
+
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
  }
 
- .sticky {
+.sticky {
     position: fixed;
     top: 0;
     z-index: 1;
     /* width: 100%; */
- }
+}
+
+.wrap::-webkit-scrollbar {
+    display: none;
+}
