@@ -304,7 +304,8 @@ export const headerList = [
     },
     {
         title: <div>FINAL DOCS<br/>(INV, BKL, DN, ...)</div>,
-        width: 150
+        width: 150,
+        visible: false,
     },
     {
         title: 'PAYMENT',

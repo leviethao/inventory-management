@@ -115,13 +115,17 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                     {'#'}
                 </div>
                 {headerList.map(item => (
-                    <div
-                        key={`table-header-item-${item.title}`}
-                        className='table-header-item'
-                        style={{width: item.width}}
-                    >
-                        {item.title}
-                    </div>
+                    <>
+                        {item.visible === false ? null : (
+                            <div
+                                key={`table-header-item-${item.title}`}
+                                className='table-header-item'
+                                style={{width: item.width}}
+                            >
+                                {item.title}
+                            </div>
+                        )}
+                    </>
                 ))}
             </div>
         )
@@ -522,13 +526,19 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                             </div>
                         </div>
                         {row?.cells?.map((cell, cellIndex) => (
-                            <div
-                                key={`table-cell-${cellIndex}`}
-                                className='table-cell wrap'
-                                style={{width: headerList[cellIndex].width, maxHeight: row.editing ? 400 : 200, overflowY: 'scroll'}}
-                            >
-                                {renderCell(row.tempId, cellIndex)}
-                            </div>
+                            <>
+                            {
+                                headerList[cellIndex].visible === false ? null : (
+                                    <div
+                                        key={`table-cell-${cellIndex}`}
+                                        className='table-cell wrap'
+                                        style={{width: headerList[cellIndex].width, maxHeight: row.editing ? 400 : 200, overflowY: 'scroll'}}
+                                    >
+                                        {renderCell(row.tempId, cellIndex)}
+                                    </div>
+                                )
+                            }
+                            </>
                         ))}
                     </div>
                 ))}
