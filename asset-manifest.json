@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/inventory-management/static/css/main.b2a2a0c4.chunk.css",
+    "main.css": "/inventory-management/static/css/main.d4516c8a.chunk.css",
     "main.js": "/inventory-management/static/js/main.d2df8222.chunk.js",
     "main.js.map": "/inventory-management/static/js/main.d2df8222.chunk.js.map",
     "runtime-main.js": "/inventory-management/static/js/runtime-main.e660f951.js",
@@ -8,7 +8,7 @@
     "static/js/2.b36f553f.chunk.js": "/inventory-management/static/js/2.b36f553f.chunk.js",
     "static/js/2.b36f553f.chunk.js.map": "/inventory-management/static/js/2.b36f553f.chunk.js.map",
     "index.html": "/inventory-management/index.html",
-    "static/css/main.b2a2a0c4.chunk.css.map": "/inventory-management/static/css/main.b2a2a0c4.chunk.css.map",
+    "static/css/main.d4516c8a.chunk.css.map": "/inventory-management/static/css/main.d4516c8a.chunk.css.map",
     "static/js/2.b36f553f.chunk.js.LICENSE.txt": "/inventory-management/static/js/2.b36f553f.chunk.js.LICENSE.txt",
     "static/js/main.d2df8222.chunk.js.LICENSE.txt": "/inventory-management/static/js/main.d2df8222.chunk.js.LICENSE.txt",
     "static/media/bitcoin.png": "/inventory-management/static/media/bitcoin.47422bea.png",
@@ -44,7 +44,7 @@
   "entrypoints": [
     "static/js/runtime-main.e660f951.js",
     "static/js/2.b36f553f.chunk.js",
-    "static/css/main.b2a2a0c4.chunk.css",
+    "static/css/main.d4516c8a.chunk.css",
     "static/js/main.d2df8222.chunk.js"
   ]
 }
