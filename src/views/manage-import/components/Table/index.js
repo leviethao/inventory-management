@@ -28,7 +28,7 @@ const headerListDefault = [...headerList]
 const dataListDefault = [...dataList]
 const ICON_COLOR = '#888888'
 
-const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...props}) => {
+const Table = ({headerList = headerListDefault, dataList = dataListDefault, editable = true, ...props}) => {
     const [width, setWidth] = useState('100%')
     const headerRef = useRef()
     const [data, setData] = useState(dataList)
@@ -497,7 +497,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                     <div key={`table-row-${rowIndex}`} className={`table-row ${checkOrderETANotif(row) ? 'order-ETA-notif' : ''}`}>
                         <div key={`table-cell-#`} className='table-cell' style={{display: 'flex', justifyContent: 'center'}}>
                             {`${rowIndex}`}
-                            <div style={{display: 'flex', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
+                            <div style={{display: editable ? 'flex' : 'none', justifyContent: 'center', position: 'absolute', width: '100%', marginTop: 16}}>
                                 <Tooltip title='Delete'>
                                     <IconButton sx={{width: 32, height: 32}} onClick={onClickDeleteRow(row.tempId)}>
                                         <DeleteIcon sx={{ color: ICON_COLOR, width: 16, height: 16}} />
@@ -544,7 +544,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
                 ))}
             </div>
         )
-    }, [dataShow, headerList, onClickCancelEditRow, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell])
+    }, [dataShow, headerList, onClickCancelEditRow, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell, editable])
 
     useEffect(() => {
         setDataShow(x => {
@@ -570,11 +570,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, ...p
             <SearchBar onSearch={setSearchText} />
             {renderHeaderList()}
             {renderDataList()}
-            <Tooltip title='Create new Order'>
-                <Fab color='primary' aria-label="add" style={{position: 'fixed', zIndex: 2, right: '5vw', top: '80vh'}} onClick={onClickCreateNewRow}>
-                    <AddIcon />
-                </Fab>
-            </Tooltip>
+            {editable ? (
+                <Tooltip title='Create new Order'>
+                    <Fab color='primary' aria-label="add" style={{position: 'fixed', zIndex: 2, right: '5vw', top: '80vh'}} onClick={onClickCreateNewRow}>
+                        <AddIcon />
+                    </Fab>
+                </Tooltip>
+            ) : null}
         </div>
     )
 }

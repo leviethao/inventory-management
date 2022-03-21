@@ -10,6 +10,7 @@ const DebounceTextField = ({
     style,
     size='small',
     label="Select a value",
+    placeholder = 'Empty',
     ...props
 }) => {
     const [text, setText] = useState('')
@@ -30,7 +31,7 @@ const DebounceTextField = ({
     return (
         <TextField
             {...props}
-            placeholder='Empty'
+            placeholder={placeholder}
             type={type}
             onChange={onChangeText}
             style={style}

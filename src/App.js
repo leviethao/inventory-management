@@ -12,30 +12,40 @@ import ProfilePage from "./views/manage-import/examples/ProfilePage";
 import ManageImport from "views/manage-import/ManageImport";
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { Provider } from 'react-redux'
+import { store } from "redux/store";
+import Login from "views/manage-import/components/Login";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor } from "redux/store";
 
 const App = () => {
     return (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <BrowserRouter>
-                <Switch>
-                <Route path="/" render={(props) => <ManageImport {...props} />} />
-                <Route path="/components" render={(props) => <Index {...props} />} />
-                <Route
-                    path="/landing-page"
-                    render={(props) => <LandingPage {...props} />}
-                />
-                <Route
-                    path="/register-page"
-                    render={(props) => <RegisterPage {...props} />}
-                />
-                <Route
-                    path="/profile-page"
-                    render={(props) => <ProfilePage {...props} />}
-                />
-                {/* <Redirect from="/" to="/components" /> */}
-                </Switch>
-            </BrowserRouter>
-        </LocalizationProvider>
+        <Provider store={store}>
+            <PersistGate persistor={persistor}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <BrowserRouter>
+                        <Switch>
+                            <Route path="/import-follow-up" render={(props) => <ManageImport {...props} />} />
+                            <Route path="/login" render={(props) => <Login {...props} />} />
+                            <Route path="/components" render={(props) => <Index {...props} />} />
+                            <Route
+                                path="/landing-page"
+                                render={(props) => <LandingPage {...props} />}
+                            />
+                            <Route
+                                path="/register-page"
+                                render={(props) => <RegisterPage {...props} />}
+                            />
+                            <Route
+                                path="/profile-page"
+                                render={(props) => <ProfilePage {...props} />}
+                            />
+                            <Redirect from="/" to="/import-follow-up" />
+                        </Switch>
+                    </BrowserRouter>
+                </LocalizationProvider>
+            </PersistGate>
+        </Provider>
     )
 }
 export default App

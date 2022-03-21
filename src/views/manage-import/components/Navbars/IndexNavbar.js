@@ -15,7 +15,8 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 // reactstrap components
 import {
@@ -35,11 +36,14 @@ import {
   Col,
   UncontrolledTooltip,
 } from "reactstrap";
+import { commonActions } from "redux/actions";
 
 export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
+  const common = useSelector(state => state.common)
+  const dispatch = useDispatch()
   // React.useEffect(() => {
   //   window.addEventListener("scroll", changeColor);
   //   return function cleanup() {
@@ -74,6 +78,11 @@ export default function IndexNavbar() {
       .getElementById("download-section")
       .scrollIntoView({ behavior: "smooth" });
   };
+
+  const logout = useCallback(() => {
+    dispatch(commonActions.setCommon({hasLogin: false, loginData: null}))
+  }, [dispatch])
+
   return (
     <Navbar className={color} color-on-scroll="100" expand="lg">
       <Container>
@@ -207,6 +216,17 @@ export default function IndexNavbar() {
               </Button>
             </NavItem>
           </Nav> */}
+          {common.hasLogin ? (
+            <>
+              <div style={{fontSize: 18}}>{common.loginData?.Name}</div>
+              <Button onClick={logout}>{'Logout'}</Button>
+            </>
+          ) : (
+            <Button onClick={() => {
+              window.location.href = '/login'
+            }}>{'Login'}</Button>
+          )}
+          
         </Collapse>
       </Container>
     </Navbar>

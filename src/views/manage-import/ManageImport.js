@@ -21,9 +21,11 @@ import Table from "./components/Table/index.js";
 import { headerList, objectToRow } from "./components/Table/data.js";
 import { api } from "services/api/index.js";
 import ImportManagementController from "../../controllers/import-management/index.js";
+import { useSelector } from "react-redux";
 
 export default function ManageImport() {
   const [dataList, setDataList] = useState([])
+  const common = useSelector(state => state.common)
 
   React.useEffect(() => {
     document.body.classList.toggle("index-page");
@@ -45,7 +47,7 @@ export default function ManageImport() {
       <div className="wrapper">
         {/* <PageHeader /> */}
         <div className="main">
-          <Table headerList={headerList} dataList={dataList} />
+          <Table headerList={headerList} dataList={dataList} editable={common.hasLogin} />
           {/* <Basics />
           <Navbars />
           <Tabs />
