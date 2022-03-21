@@ -17,7 +17,7 @@ const Login = () => {
                 hasLogin: true,
                 loginData: res.data.data,
             }))
-            window.location.href = '/import-follow-up'
+            window.location.href = '/inventory-management/import-follow-up'
         } else {
             alert(res.data.error)
         }
