@@ -34,6 +34,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
     const [data, setData] = useState(dataList)
     const [dataShow, setDataShow] = useState(dataList)
     const [searchText, setSearchText] = useState('')
+    const dataListRef = useRef(dataList)
 
     const moveDoneRowsToEndOfList = useCallback((newData) => {
         let notDoneOrderList = [...newData]
@@ -77,6 +78,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
 
         setData(sorted)
         setDataShow(sorted)
+        dataListRef.current = dataList
     }, [dataList, moveDoneRowsToEndOfList])
 
     useEffect(() => {
@@ -96,9 +98,11 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
     }, [headerList, setWidth])
 
     const onClickCreateNewRow = useCallback(() => {
+        const newRowId = uuidv4()
+        dataListRef.current.unshift({cells: createNewRow({}), editing: true, tempId: newRowId})
         setData(x => {
             let newData = [...x]
-            newData.unshift({cells: createNewRow({}), editing: true, tempId: uuidv4()})
+            newData.unshift({cells: createNewRow({}), editing: true, tempId: newRowId})
             return newData
         })
     }, [])
@@ -146,13 +150,13 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
         return () => {
             setData(x => {
                 let newData = [...x]
-                let rowIndex = newData.findIndex(row => row.tempId === rowTempId)
-                const oldRow = dataList.find(row => row.Id == newData[rowIndex].Id)
+                let rowIndex = newData.findIndex(row => row.tempId == rowTempId)
+                let oldRow = dataListRef.current.find(row => row.tempId == newData[rowIndex].tempId)
                 newData[rowIndex] = _.cloneDeep(oldRow)
                 return newData
             })
         }
-    }, [dataList])
+    }, [])
 
     const onClickSaveRow = useCallback((rowTempId) => {
         return async () => {
@@ -231,6 +235,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
 
     const renderCell = useCallback((rowTempId, cellIndex) => {
         let row = data.find(row => row.tempId === rowTempId)
+        if (!row) return null
         const cell = row.cells[cellIndex]
 
         switch (cell.type) {
@@ -493,7 +498,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
     const renderDataList = useCallback(() => {
         return (
             <div className='table-content'>
-                {dataShow.map((row, rowIndex) => (
+                {dataShow.map((row, rowIndex) => row ? (
                     <div key={`table-row-${rowIndex}`} className={`table-row ${checkOrderETANotif(row) ? 'order-ETA-notif' : ''}`}>
                         <div key={`table-cell-#`} className='table-cell' style={{display: 'flex', justifyContent: 'center'}}>
                             {`${rowIndex}`}
@@ -541,12 +546,15 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
                             </>
                         ))}
                     </div>
-                ))}
+                ) : null )}
             </div>
         )
     }, [dataShow, headerList, onClickCancelEditRow, onClickDeleteRow, onClickEditRow, onClickSaveRow, renderCell, editable])
 
     useEffect(() => {
+        if (!data.length) return
+        if (!data[0].tempId) return
+        
         setDataShow(x => {
             let listToShow = []
             if (searchText?.trim()) {

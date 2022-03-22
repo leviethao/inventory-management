@@ -223,7 +223,7 @@ export default function IndexNavbar() {
             </>
           ) : (
             <Button onClick={() => {
-              window.location.href = '/inventory-management/login'
+              dispatch(commonActions.setCommon({loginPage: true}))
             }}>{'Login'}</Button>
           )}
           

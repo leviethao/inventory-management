@@ -22,6 +22,9 @@ import { headerList, objectToRow } from "./components/Table/data.js";
 import { api } from "services/api/index.js";
 import ImportManagementController from "../../controllers/import-management/index.js";
 import { useSelector } from "react-redux";
+import Login from "./components/Login/index.js";
+import _ from 'lodash'
+const { v4: uuidv4 } = require('uuid')
 
 export default function ManageImport() {
   const [dataList, setDataList] = useState([])
@@ -30,10 +33,14 @@ export default function ManageImport() {
   React.useEffect(() => {
     document.body.classList.toggle("index-page");
     ImportManagementController.getOrders().then(res => {
-      console.log('data: ', res.data)
       const rows = res.data.map(item => objectToRow(item))
-      setDataList(rows)
-      console.log('rows: ', rows)
+      
+      const mappedData = _.cloneDeep(rows).map(item => {
+          item.tempId = item.Id || uuidv4()
+          return item
+      })
+      setDataList(mappedData)
+      console.log('rows: ', mappedData)
     })
     // Specify how to clean up after this effect:
     return function cleanup() {
@@ -41,7 +48,9 @@ export default function ManageImport() {
     };
   },[]);
 
-  return (
+  return common.loginPage ? (
+    <Login />
+  ) : (
     <>
       <IndexNavbar />
       <div className="wrapper">

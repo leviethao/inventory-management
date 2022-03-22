@@ -25,8 +25,7 @@ const App = () => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <BrowserRouter>
                         <Switch>
-                            <Route path="/inventory-management/import-follow-up" render={(props) => <ManageImport {...props} />} />
-                            <Route path="/inventory-management/login" render={(props) => <Login {...props} />} />
+                            <Route path="/" render={(props) => <ManageImport {...props} />} />
                             <Route path="/components" render={(props) => <Index {...props} />} />
                             <Route
                                 path="/landing-page"
@@ -40,7 +39,7 @@ const App = () => {
                                 path="/profile-page"
                                 render={(props) => <ProfilePage {...props} />}
                             />
-                            <Redirect from="/" to="/inventory-management/import-follow-up" />
+                            {/* <Redirect from="/" to="/inventory-management/import-follow-up" /> */}
                         </Switch>
                     </BrowserRouter>
                 </LocalizationProvider>

@@ -17,7 +17,8 @@ const Login = () => {
                 hasLogin: true,
                 loginData: res.data.data,
             }))
-            window.location.href = '/inventory-management/import-follow-up'
+            // window.location.href = '/inventory-management/import-follow-up'
+            dispatch(commonActions.setCommon({loginPage: false}))
         } else {
             alert(res.data.error)
         }
