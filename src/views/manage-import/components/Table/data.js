@@ -384,11 +384,11 @@ export const createNewRow = ({
         },
         {
             type: TableDataType.Date,
-            value: ETD || moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
+            value: ETD || null
         },
         {
             type: TableDataType.Date,
-            value: ETA || moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
+            value: ETA || null
         },
         {
             type: TableDataType.Text,
