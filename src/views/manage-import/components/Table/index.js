@@ -258,7 +258,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
                     )
                 }
 
-                return moment(cell.value).format('MM/DD/YYYY')
+                return cell.value ? moment(cell.value).format('MM/DD/YYYY') : 'None'
             case TableDataType.Text:
                 if (row.editing) {
                     return (
