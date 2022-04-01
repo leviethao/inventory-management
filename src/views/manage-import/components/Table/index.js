@@ -245,6 +245,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
                         <DatePicker
                             label="Select a date"
                             value={cell.value}
+                            inputFormat='dd/MM/yyyy'
                             onChange={(newValue) => {
                                 setData(x => {
                                     let newData = [...x]
@@ -258,7 +259,7 @@ const Table = ({headerList = headerListDefault, dataList = dataListDefault, edit
                     )
                 }
 
-                return cell.value ? moment(cell.value).format('MM/DD/YYYY') : 'None'
+                return cell.value ? moment(cell.value).format('DD/MM/YYYY') : 'None'
             case TableDataType.Text:
                 if (row.editing) {
                     return (

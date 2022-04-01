@@ -3,7 +3,7 @@ export const subtractDateInDays = (date1, date2) => {
 }
 
 export const checkOrderETANotif = (order) => {
-    const nearDue = order?.cells[7].value && subtractDateInDays(new Date(order?.cells[7].value), new Date()) < 7
+    const nearDue = order?.cells[7].value && subtractDateInDays(new Date(order?.cells[7].value), new Date()) < 14
     const isDone = order?.cells[11].value == 'Done'
     return (nearDue && !isDone)
 }

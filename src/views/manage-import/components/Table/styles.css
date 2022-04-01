@@ -66,7 +66,7 @@
     flex-grow: 0;
 }
 .table-row:hover {
-    background-image: linear-gradient(#fff, #fff);
+    background-image: linear-gradient(rgb(144, 189, 219), #fff);
 }
 
 .table-cell {
@@ -176,7 +176,7 @@
 }
 
 .order-ETA-notif {
-    background-image: linear-gradient(rgb(144, 189, 219), #fff);
+    background-image: linear-gradient(#fff, #fff);
 }
 
 .wrap { 
