@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/inventory-management/static/css/main.98c86478.chunk.css",
-    "main.js": "/inventory-management/static/js/main.c6114aad.chunk.js",
-    "main.js.map": "/inventory-management/static/js/main.c6114aad.chunk.js.map",
-    "runtime-main.js": "/inventory-management/static/js/runtime-main.e660f951.js",
-    "runtime-main.js.map": "/inventory-management/static/js/runtime-main.e660f951.js.map",
-    "static/js/2.1e798e8a.chunk.js": "/inventory-management/static/js/2.1e798e8a.chunk.js",
-    "static/js/2.1e798e8a.chunk.js.map": "/inventory-management/static/js/2.1e798e8a.chunk.js.map",
+    "main.js": "/inventory-management/static/js/main.6fdc8a9e.chunk.js",
+    "main.js.map": "/inventory-management/static/js/main.6fdc8a9e.chunk.js.map",
+    "runtime-main.js": "/inventory-management/static/js/runtime-main.167dea1c.js",
+    "runtime-main.js.map": "/inventory-management/static/js/runtime-main.167dea1c.js.map",
+    "static/js/2.f547540f.chunk.js": "/inventory-management/static/js/2.f547540f.chunk.js",
+    "static/js/2.f547540f.chunk.js.map": "/inventory-management/static/js/2.f547540f.chunk.js.map",
     "index.html": "/inventory-management/index.html",
     "static/css/main.98c86478.chunk.css.map": "/inventory-management/static/css/main.98c86478.chunk.css.map",
-    "static/js/2.1e798e8a.chunk.js.LICENSE.txt": "/inventory-management/static/js/2.1e798e8a.chunk.js.LICENSE.txt",
-    "static/js/main.c6114aad.chunk.js.LICENSE.txt": "/inventory-management/static/js/main.c6114aad.chunk.js.LICENSE.txt",
+    "static/js/2.f547540f.chunk.js.LICENSE.txt": "/inventory-management/static/js/2.f547540f.chunk.js.LICENSE.txt",
+    "static/js/main.6fdc8a9e.chunk.js.LICENSE.txt": "/inventory-management/static/js/main.6fdc8a9e.chunk.js.LICENSE.txt",
     "static/media/bitcoin.png": "/inventory-management/static/media/bitcoin.47422bea.png",
     "static/media/blob.png": "/inventory-management/static/media/blob.e3950678.png",
     "static/media/cercuri.png": "/inventory-management/static/media/cercuri.05cc0d04.png",
@@ -42,9 +42,9 @@
     "static/media/waves.png": "/inventory-management/static/media/waves.ac46eaef.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.e660f951.js",
-    "static/js/2.1e798e8a.chunk.js",
+    "static/js/runtime-main.167dea1c.js",
+    "static/js/2.f547540f.chunk.js",
     "static/css/main.98c86478.chunk.css",
-    "static/js/main.c6114aad.chunk.js"
+    "static/js/main.6fdc8a9e.chunk.js"
   ]
 }
